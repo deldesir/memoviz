@@ -1,0 +1,282 @@
+/* ── CSS VARIABLES ───────────────────────────────────────────────── */
+:root {
+  --cell-size: 60px;
+  --cell-height: 40px;
+  --highlight-color: #a0e0ff; /* Default highlight if no category */
+  --highlight-outline: #007bff;
+  --axis-border: #333;
+  --transition-speed: 0.3s;
+  --panel-width: 300px;
+  --panel-bg: #fff;
+  --panel-shadow: rgba(0,0,0,0.2);
+  /* --loading-bg: rgba(255, 255, 255, 0.8); -- Removed */
+  --default-display-bg: #f0f0f0;
+  --default-display-border: #ccc;
+  --default-display-text: #333;
+}
+
+/* hide element but keep for screen-readers */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* ── GLOBAL ──────────────────────────────────── */
+body {
+  font-family: sans-serif;
+  display: flex; flex-direction: column; align-items: center;
+  padding-top: 20px; background-color: #f4f4f4; margin: 0;
+  /* position: relative; -- No longer needed */
+}
+h1 { margin-top: 0; color: #333; margin-bottom: 10px; }
+
+/* Loading Indicator Styles Removed */
+
+/* ── GEAR BUTTON & SETTINGS PANEL ─────────────────────────────────── */
+.gear-btn {
+  position: fixed; top: 10px; right: 10px;
+  background: rgba(255,255,255,0.9); border: none;
+  cursor: pointer; padding: 8px; border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all var(--transition-speed); color: #333; z-index: 20;
+}
+.gear-btn:hover {
+  background: rgba(255,255,255,1);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+.gear-btn:focus-visible {
+    outline: 2px solid var(--highlight-outline);
+    outline-offset: 2px;
+}
+
+.settings-panel {
+  position: fixed; top: 0; right: 0;
+  width: var(--panel-width); height: 100vh;
+  background: var(--panel-bg);
+  box-shadow: -4px 0 8px var(--panel-shadow);
+  transform: translateX(100%);
+  transition: transform var(--transition-speed);
+  padding: 20px; box-sizing: border-box;
+  overflow-y: auto; z-index: 10;
+}
+.settings-panel.open {
+  transform: translateX(0);
+}
+.settings-panel:focus-visible {
+    outline: 2px solid var(--highlight-outline);
+    outline-offset: -2px;
+}
+.settings-panel h2 {
+  margin-top: 0; font-size: 1.3em; color: #222;
+  border-bottom: 2px solid #eee; padding-bottom: 12px;
+}
+
+/* ── CONTROLS (inside panel) ─────────────────────────────────────── */
+.controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px,1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+#notification {
+  grid-column: 1/-1; padding: 12px;
+  background: #ffeeba; border: 1px solid #f5c6cb;
+  border-radius: 6px; color: #856404; font-size: 0.95em;
+}
+#notification[type="error"] {
+  background-color: #f8d7da; color: #721c24; border-color: #f5c6cb;
+}
+#notification[type="success"] {
+  background-color: #d4edda; color: #155724; border-color: #c3e6cb;
+}
+
+.controls button,
+.import-button,
+#languageSelect {
+  padding: 10px 12px;
+  cursor: pointer; border: 1px solid #ddd;
+  background: rgba(255,255,255,0.9); border-radius: 6px;
+  font-size: 1em;
+  transition: all var(--transition-speed);
+  color: #333;
+  min-height: 38px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.controls button:hover,
+.import-button:hover,
+#languageSelect:hover:not(:disabled) {
+  background: rgba(0,0,0,0.05);
+  border-color: #ccc;
+  transform: translateY(-1px);
+}
+.controls button:focus-visible,
+.import-button:focus-visible,
+#languageSelect:focus-visible {
+    outline: 2px solid var(--highlight-outline);
+    outline-offset: 1px;
+}
+
+#languageSelect:disabled {
+    cursor: not-allowed;
+    background-color: #e9e9e9;
+    color: #999;
+    opacity: 0.7;
+}
+#importFile { display: none; }
+.import-button {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+}
+
+.display-controls {
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+.language-selector, .form-selector, .view-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.language-selector label,
+.form-selector span,
+.view-options span
+{
+  font-weight: 600; color: #222; font-size: 1.05em;
+  margin-bottom: 2px;
+}
+
+.form-selector div,
+.view-options
+{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-selector label,
+.view-options label
+{
+  cursor: pointer; font-size: 0.95em; color: #444;
+  display: flex; align-items: center; gap: 8px;
+  margin: 0;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+.form-selector input[type="radio"]:focus-visible + span,
+.view-options input[type="checkbox"]:focus-visible + span {
+    outline: 2px solid var(--highlight-outline);
+    outline-offset: 1px;
+}
+.form-selector input[type="radio"],
+.view-options input[type="checkbox"] {
+  margin: 0; width: 16px; height: 16px;
+  flex-shrink: 0;
+}
+
+/* ── DEFAULT FORM DISPLAY AREA (Above Grid) ──────────────────────── */
+.default-form-display {
+    background-color: var(--default-display-bg);
+    border: 1px solid var(--default-display-border);
+    border-radius: 6px;
+    padding: 8px 15px;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: var(--default-display-text);
+    min-height: 1.5em;
+    text-align: center;
+    width: 80%;
+    max-width: 500px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: opacity var(--transition-speed), visibility var(--transition-speed);
+}
+.default-form-display[hidden] {
+    opacity: 0;
+    visibility: hidden;
+}
+.default-form-display .coord-display {
+    font-weight: bold;
+}
+
+/* ── GRID ─────────────────────────────────────────────────────────── */
+.grid-container {
+  background: #fff; padding: 15px; border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow-x: auto;
+  margin-top: 10px;
+}
+
+#interactiveTable {
+  border-collapse: collapse; table-layout: fixed;
+}
+
+#interactiveTable th {
+  padding: 4px; background: none; color: #222; font-weight: 600;
+  vertical-align: middle;
+  user-select: none;
+}
+.col-header {
+  border-bottom: 2px solid var(--axis-border);
+  border-left: none; border-top: none; border-right: 1px solid #ccc;
+  text-align: center;
+  height: 25px;
+  width: var(--cell-size);
+}
+.row-header {
+  border-right: 2px solid var(--axis-border);
+  border-top: none; border-left: none; border-bottom: 1px solid #ccc;
+  text-align: right; padding-right: 8px;
+  width: 30px;
+  height: var(--cell-height);
+}
+.corner-cell {
+  background: transparent; border: none;
+}
+
+#interactiveTable td {
+  border: 1px solid #ccc;
+  width: var(--cell-size); height: var(--cell-height);
+  text-align: center; vertical-align: middle;
+  padding: 2px; box-sizing: border-box;
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+  background: #fff;
+  cursor: pointer;
+  position: relative;
+  --cell-category-bg: transparent;
+  background-color: var(--cell-category-bg);
+}
+#interactiveTable td:hover { background-color: #f0f0f0; }
+
+.item-name {
+  display: none;
+  font-size: 0.9em; color: #444;
+  user-select: none; word-break: break-word; line-height: 1.2;
+  padding: 0 2px;
+}
+body.items-visible #interactiveTable td .item-name { display: block; }
+
+#interactiveTable td.highlight {
+  background-color: var(--highlight-cell-bg, var(--highlight-color));
+  outline: 2px solid var(--highlight-outline);
+  outline-offset: -2px;
+  font-weight: bold;
+  color: black;
+}
+#interactiveTable td.highlight .item-name {
+  display: block;
+  color: black;
+  font-weight: bold;
+}
+
+body.category-colors-visible:not(.items-visible) #interactiveTable td {
+    color: transparent;
+}
+body.category-colors-visible:not(.items-visible) #interactiveTable td .item-name {
+    display: none;
+}
+body.category-colors-visible:not(.items-visible) #interactiveTable td:hover {
+    filter: brightness(90%);
+}
