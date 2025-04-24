@@ -1,0 +1,70 @@
+{
+  "meta": {
+    "rows": 10,
+    "cols": 7,
+    "languages": {
+      "en": "English",
+      "fr": "Français",
+      "ht": "Kreyòl Ayisyen"
+    },
+    "defaultLanguage": "en",
+    "forms": ["Full Name", "Abbreviation", "Symbol/Letter"],
+    "categories": {
+      "alkali_metal": { "name": "Alkali Metal", "color": "#ffcc80" },
+      "alkaline_earth_metal": { "name": "Alkaline Earth Metal", "color": "#ffff80" },
+      "noble_gas": { "name": "Noble Gas", "color": "#c0ffff" },
+      "nonmetal": { "name": "Nonmetal", "color": "#ccffcc" },
+      "metalloid": { "name": "Metalloid", "color": "#cccc99" },
+      "halogen": { "name": "Halogen", "color": "#ffffcc" },
+      "post_transition_metal": { "name": "Post-transition Metal", "color": "#cccccc" },
+      "lanthanide": { "name": "Lanthanide", "color": "#ffbfff" },
+      "actinide": { "name": "Actinide", "color": "#ff99cc" },
+      "transition_metal": { "name": "Transition Metal", "color": "#ffcccc" },
+      "unknown": { "name": "Unknown", "color": "#e0e0e0" }
+    }
+  },
+  "items": {
+    "00": {
+      "category": "nonmetal",
+      "en": ["Hydrogen", "H", "H"],
+      "fr": ["Hydrogène", "H", "H"],
+      "ht": ["Idwojèn", "H", "H"]
+    },
+    "01": {
+      "category": "alkali_metal",
+      "en": ["Lithium", "Li", "L"],
+      "fr": ["Lithium", "Li", "L"],
+      "ht": ["Lityòm", "Li", "L"]
+    },
+    "10": {
+       "category": "noble_gas",
+      "en": ["Helium", "He", "H"],
+      "fr": ["Hélium", "He", "H"],
+      "ht": ["Elyòm", "He", "H"]
+    },
+    "60": {
+       "category": "halogen",
+       "en": ["Fluorine", "F", "F"],
+       "fr": ["Fluor", "F", "F"],
+       "ht": ["Fliyò", "F", "F"]
+    },
+    "23": {
+       "category": "transition_metal",
+      "en": ["Vanadium", "V", "V"],
+      "fr": ["Vanadium", "V", "V"],
+      "ht": ["Vanadyòm", "V", "V"]
+    },
+    "44": {
+       "category": "unknown",
+      "en": ["Example Item", "Ex", "X"],
+      "fr": ["Objet Exemple", "Ex", "X"]
+    },
+    "55": null,
+    "69": {
+       "category": "lanthanide",
+      "en": ["Last Element", "Last", "L"],
+      "fr": ["Dernier Élément", "Dern", "D"],
+      "ht": ["Eleman Dènye", "Den", "D"]
+    }
+  }
+}
