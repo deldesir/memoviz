@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MemoViz Enhanced</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <button
+    type="button"
+    id="settingsToggle"
+    class="gear-btn"
+    aria-label="Open settings"
+    aria-expanded="false"
+    aria-controls="settingsPanel"
+  >⚙️</button>
+
+  <aside id="settingsPanel" class="settings-panel" aria-hidden="true" tabindex="-1">
+    <h2>Settings</h2>
+
+    <div class="controls main-controls">
+      <span id="inputFeedback" aria-live="polite">
+        Typed: <span id="typedDigits">--</span>
+      </span>
+      <button type="button" id="toggleItemsBtn" title="Show or hide item names">Show Names</button>
+      <button type="button" id="clearBtn" title="Clear current input">Clear Input</button>
+      <div class="import-controls">
+        <label for="importFile" class="import-button" title="Load JSON data">Load JSON</label>
+        <input type="file" id="importFile" accept=".json"/>
+      </div>
+      <div id="notification" role="alert" aria-live="assertive" hidden></div>
+    </div>
+
+    <div class="controls display-controls">
+      <div class="language-selector">
+        <label for="languageSelect">Language:</label>
+        <select id="languageSelect" disabled>
+          <option value="">-- Load Data --</option>
+        </select>
+      </div>
+      <div class="form-selector"><span>Display Form (in grid):</span></div>
+       <div class="view-options">
+           <label>
+               <input type="checkbox" id="showDefaultFormToggle"> Show Full Name Above Grid
+           </label>
+           <label>
+               <input type="checkbox" id="colorCellsToggle"> Color Cells by Category (when names hidden)
+           </label>
+       </div>
+    </div>
+  </aside>
+
+  <h1>MemoViz</h1>
+
+  <div id="defaultFormDisplay" class="default-form-display" aria-live="polite" hidden>
+      <span class="coord-display">--</span>: <span class="text-display">---</span>
+  </div>
+
+  <div class="grid-container">
+    <table id="interactiveTable" role="grid" aria-label="Interactive grid">
+      <caption class="visually-hidden">Interactive grid with row and column labels dynamically generated based on loaded data. Use number keys (ColumnRow) to highlight cells.</caption>
+      <thead>
+        <tr>
+          <th scope="col" class="corner-cell"></th>
+          </tr>
+      </thead>
+      <tbody id="gridBody">
+        </tbody>
+    </table>
+  </div>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
