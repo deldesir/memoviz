@@ -1234,18 +1234,15 @@ class GridGame {
       // Updates visual styles like category background colors based on settings
       if (!this.data) return; // No data to apply appearance to
 
-      const itemsVisible = document.body.classList.contains('items-visible');
       // Apply category colors only if toggle is on AND item names are hidden
-      const applyCategoryColor = this.useCategoryColors && !itemsVisible;
-
-      console.log(`Updating grid appearance. Category Colors Active: ${applyCategoryColor}`);
+      const applyCategoryColor = this.useCategoryColors
 
       // Iterate through cached cells
       for (const td of Object.values(this.cellMap)) {
           if (applyCategoryColor) {
               // Get category ID and color
               const categoryId = td.dataset.category || 'unknown';
-              const categoryColor = this.categories[categoryId]?.color || this.categories['unknown']?.color || 'transparent'; // Use defined unknown color or transparent
+              const categoryColor = this.categories[categoryId]?.color || 'transparent'; // Use defined color or transparent
               // Apply color using CSS variable
               td.style.setProperty('--cell-category-bg', categoryColor);
           } else {
