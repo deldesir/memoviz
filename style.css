@@ -1,36 +1,52 @@
 /* ── CSS VARIABLES ───────────────────────────────────────────────── */
 :root {
+  /* Grid & Cell */
   --cell-size: 60px;
   --cell-height: 40px;
+  --axis-border: #333;
+
+  /* Highlighting & Feedback */
   --highlight-color: #a0e0ff; /* Default highlight if no category */
   --highlight-outline: #007bff;
-  --axis-border: #333;
-  --transition-speed: 0.3s;
+  --feedback-correct-color: #28a745; /* Green */
+  --feedback-wrong-color: #dc3545; /* Red */
+  --feedback-anim-duration: 0.5s;
+
+  /* Settings Panel */
   --panel-width: 300px;
   --panel-bg: #fff;
   --panel-shadow: rgba(0,0,0,0.2);
-  /* --loading-bg: rgba(255, 255, 255, 0.8); -- Removed */
+
+  /* Other UI */
   --default-display-bg: #f0f0f0;
   --default-display-border: #ccc;
   --default-display-text: #333;
+  --transition-speed: 0.3s;
 }
 
-/* hide element but keep for screen-readers */
+/* ── UTILITIES ───────────────────────────────────────────────────── */
+
+/* Hide element visually but keep accessible for screen-readers */
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
 }
 
-/* ── GLOBAL ──────────────────────────────────── */
+/* ── GLOBAL STYLES ──────────────────────────────────────────────── */
 body {
   font-family: sans-serif;
   display: flex; flex-direction: column; align-items: center;
   padding-top: 20px; background-color: #f4f4f4; margin: 0;
-  /* position: relative; -- No longer needed */
+  min-height: 100vh; /* Ensure body takes at least full height */
+  box-sizing: border-box;
 }
-h1 { margin-top: 0; color: #333; margin-bottom: 10px; }
 
-/* Loading Indicator Styles Removed */
+h1 {
+  margin-top: 0;
+  color: #333;
+  margin-bottom: 10px;
+  text-align: center;
+}
 
 /* ── GEAR BUTTON & SETTINGS PANEL ─────────────────────────────────── */
 .gear-btn {
@@ -39,11 +55,14 @@ h1 { margin-top: 0; color: #333; margin-bottom: 10px; }
   cursor: pointer; padding: 8px; border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   transition: all var(--transition-speed); color: #333; z-index: 20;
+  font-size: 1.2em; /* Make gear slightly larger */
+  line-height: 1; /* Prevent extra space */
 }
 .gear-btn:hover {
   background: rgba(255,255,255,1);
   box-shadow: 0 3px 6px rgba(0,0,0,0.15);
 }
+/* Focus style for accessibility */
 .gear-btn:focus-visible {
     outline: 2px solid var(--highlight-outline);
     outline-offset: 2px;
@@ -54,229 +73,418 @@ h1 { margin-top: 0; color: #333; margin-bottom: 10px; }
   width: var(--panel-width); height: 100vh;
   background: var(--panel-bg);
   box-shadow: -4px 0 8px var(--panel-shadow);
-  transform: translateX(100%);
+  transform: translateX(100%); /* Start off-screen */
   transition: transform var(--transition-speed);
   padding: 20px; box-sizing: border-box;
-  overflow-y: auto; z-index: 10;
+  overflow-y: auto; /* Allow scrolling if content overflows */
+  z-index: 10; /* Below gear button */
 }
 .settings-panel.open {
-  transform: translateX(0);
+  transform: translateX(0); /* Slide in */
 }
+/* Focus style for panel itself when tabbed into */
 .settings-panel:focus-visible {
     outline: 2px solid var(--highlight-outline);
-    outline-offset: -2px;
+    outline-offset: -2px; /* Inside border */
 }
-.settings-panel h2 {
+.settings-panel h2 { /* Panel Title */
   margin-top: 0; font-size: 1.3em; color: #222;
   border-bottom: 2px solid #eee; padding-bottom: 12px;
+  margin-bottom: 20px;
 }
 
-/* ── CONTROLS (inside panel) ─────────────────────────────────────── */
-.controls {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px,1fr));
-  gap: 12px; margin-bottom: 20px;
+/* ── SETTINGS SECTIONS & CONTROLS (inside panel) ────────────────── */
+
+/* General structure for sections within settings */
+.settings-section {
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+    margin-top: 15px;
 }
-#notification {
-  grid-column: 1/-1; padding: 12px;
-  background: #ffeeba; border: 1px solid #f5c6cb;
-  border-radius: 6px; color: #856404; font-size: 0.95em;
+.settings-section:first-of-type { /* Remove top border/margin for first section */
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
 }
-#notification[type="error"] {
-  background-color: #f8d7da; color: #721c24; border-color: #f5c6cb;
+.settings-section h4 { /* Subheadings for sections */
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.1em;
+    color: #333;
 }
-#notification[type="success"] {
-  background-color: #d4edda; color: #155724; border-color: #c3e6cb;
+.settings-section[data-mode] { /* Hide all mode sections by default */
+    display: none;
+}
+.settings-section[data-mode].active { /* Show only the active mode's section */
+    display: flex; /* or 'block' based on layout needs */
+    flex-direction: column;
+    gap: 12px;
 }
 
-.controls button,
-.import-button,
-#languageSelect {
+/* Input group styling (for radio/checkbox groups) */
+.radio-group, .view-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Space between options */
+}
+.radio-group label, .view-options label { /* General label styling for radio/checkbox */
+    cursor: pointer;
+    font-size: 0.95em;
+    color: #444;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between input and text */
+    margin: 0;
+    padding: 5px 0; /* Vertical padding */
+}
+.radio-group input[type="radio"], .view-options input[type="checkbox"] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0; /* Prevent shrinking if label text is long */
+}
+/* Focus styles for radio/checkbox text */
+.radio-group input[type="radio"]:focus-visible + span,
+.view-options input[type="checkbox"]:focus-visible + span {
+    outline: 2px solid var(--highlight-outline);
+    outline-offset: 1px;
+    border-radius: 2px;
+}
+
+
+/* General styling for buttons, select, etc. within controls */
+.settings-panel button,
+.settings-panel select,
+.import-button { /* Apply to the label acting as button */
   padding: 10px 12px;
   cursor: pointer; border: 1px solid #ddd;
   background: rgba(255,255,255,0.9); border-radius: 6px;
   font-size: 1em;
-  transition: all var(--transition-speed);
+  transition: background-color var(--transition-speed), border-color var(--transition-speed), transform var(--transition-speed);
   color: #333;
-  min-height: 38px;
+  min-height: 38px; /* Ensure consistent height */
   box-sizing: border-box;
-  display: inline-flex;
+  display: inline-flex; /* Use flex for alignment */
   align-items: center;
   justify-content: center;
   text-align: center;
+  width: 100%; /* Make controls fill width by default */
+  margin-bottom: 10px; /* Add space below controls */
 }
-.controls button:hover,
+.settings-panel button:last-child,
+.settings-panel select:last-child,
+.import-controls:last-child .import-button {
+    margin-bottom: 0; /* Remove margin from last element in a group */
+}
+
+/* Hover states */
+.settings-panel button:not(:disabled):hover,
 .import-button:hover,
-#languageSelect:hover:not(:disabled) {
-  background: rgba(0,0,0,0.05);
+.settings-panel select:not(:disabled):hover {
+  background-color: rgba(0,0,0,0.05);
   border-color: #ccc;
-  transform: translateY(-1px);
+  transform: translateY(-1px); /* Subtle lift effect */
 }
-.controls button:focus-visible,
-.import-button:focus-visible,
-#languageSelect:focus-visible {
+
+/* Focus states */
+.settings-panel button:focus-visible,
+.import-button:focus-visible, /* Focus on the label */
+.settings-panel select:focus-visible {
     outline: 2px solid var(--highlight-outline);
     outline-offset: 1px;
 }
 
-#languageSelect:disabled {
+/* Disabled state for select */
+.settings-panel select:disabled {
     cursor: not-allowed;
     background-color: #e9e9e9;
     color: #999;
     opacity: 0.7;
+    transform: none; /* Disable hover transform */
 }
-#importFile { display: none; }
-.import-button {
-  display: inline-flex; align-items: center; justify-content: center;
-  gap: 6px;
+/* Disabled state for buttons */
+.settings-panel button:disabled {
+    cursor: not-allowed;
+    background-color: #e0e0e0;
+    color: #999;
+    opacity: 0.8;
+    transform: none;
 }
 
-.display-controls {
-    grid-template-columns: 1fr;
-    gap: 15px;
+
+/* Specific Section Controls */
+.file-controls { display: flex; flex-direction: column; gap: 10px; }
+#notification {
+  grid-column: 1/-1; padding: 12px;
+  background: #ffeeba; border: 1px solid #f5c6cb;
+  border-radius: 6px; color: #856404; font-size: 0.95em;
+  width: auto; /* Override 100% width from general button style */
+  margin-bottom: 0; /* No margin needed below notification */
 }
-.language-selector, .form-selector, .view-options {
+#notification[type="error"] { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+#notification[type="success"] { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+#importFile { display: none; } /* Hide actual file input */
+.import-button { gap: 6px; } /* Space icon and text if added */
+
+/* Language and Form Selectors */
+.language-selector, .form-selector {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 5px; /* Space between label and control */
+    margin-bottom: 15px; /* Space below selector groups */
+}
+.language-selector label, .form-selector span { /* Labels/Titles */
+    font-weight: 600;
+    color: #222;
+    font-size: 1.0em; /* Adjust size */
+    margin-bottom: 2px;
 }
 
-.language-selector label,
-.form-selector span,
-.view-options span
-{
-  font-weight: 600; color: #222; font-size: 1.05em;
-  margin-bottom: 2px;
+/* Explore View Options (Checkboxes & Toggle Button) */
+#explore-controls .view-options { margin-bottom: 15px; }
+#explore-controls .view-options button#toggleItemsBtn {
+    margin-top: 5px; /* Space above button */
 }
 
-.form-selector div,
-.view-options
-{
+/* Game Controls */
+.game-controls { display: flex; flex-direction: column; gap: 12px; }
+
+.start-stop-btn {
+    background-color: var(--feedback-correct-color); /* Green for Start */
+    color: white;
+    border: none;
+    font-weight: bold;
+}
+.start-stop-btn.active { /* Style when game is running (Stop button) */
+    background-color: var(--feedback-wrong-color); /* Red for Stop */
+}
+
+#scoreDisplay {
+    font-weight: bold;
+    margin-top: 5px;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+#timed-recall-controls label[for="recallSlider"] { /* Label for slider */
+    display: block; /* Ensure it's on its own line */
+    margin-bottom: 5px;
+    font-size: 0.95em;
+}
+#sliderValueDisplay { font-weight: bold; }
+#recallSlider {
+    width: 100%; /* Make slider fill width */
+    margin-bottom: 10px; /* Space below slider */
+    cursor: pointer;
+}
+
+
+/* Debug Section */
+.debug-options {
+    background-color: #f9f9f9;
+    border: 1px dashed #ccc;
+    padding: 10px;
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
+/* Override button width for debug clear button if needed */
+.debug-options button#clearBtn { width: auto; align-self: flex-start; }
+#inputFeedback { font-size: 0.9em; color: #555; }
 
-.form-selector label,
-.view-options label
-{
-  cursor: pointer; font-size: 0.95em; color: #444;
-  display: flex; align-items: center; gap: 8px;
-  margin: 0;
-  padding: 5px 8px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-}
-.form-selector input[type="radio"]:focus-visible + span,
-.view-options input[type="checkbox"]:focus-visible + span {
-    outline: 2px solid var(--highlight-outline);
-    outline-offset: 1px;
-}
-.form-selector input[type="radio"],
-.view-options input[type="checkbox"] {
-  margin: 0; width: 16px; height: 16px;
-  flex-shrink: 0;
-}
 
 /* ── DEFAULT FORM DISPLAY AREA (Above Grid) ──────────────────────── */
 .default-form-display {
     background-color: var(--default-display-bg);
     border: 1px solid var(--default-display-border);
     border-radius: 6px;
-    padding: 8px 15px;
+    padding: 10px 15px; /* Slightly more padding */
     margin-bottom: 15px;
     font-size: 1.1em;
     color: var(--default-display-text);
-    min-height: 1.5em;
+    min-height: 1.5em; /* Ensure it doesn't collapse when empty */
     text-align: center;
-    width: 80%;
-    max-width: 500px;
+    width: 80%; /* Limit width */
+    max-width: 600px; /* Increase max width slightly */
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     transition: opacity var(--transition-speed), visibility var(--transition-speed);
+    box-sizing: border-box;
 }
+/* Hide smoothly when hidden attribute is present */
 .default-form-display[hidden] {
     opacity: 0;
     visibility: hidden;
+    padding: 0; /* Collapse padding when hidden */
+    border: none;
+    margin-bottom: 0;
 }
-.default-form-display .coord-display {
+.default-form-display .coord-display { /* Style for label/coord part */
     font-weight: bold;
+    margin-right: 5px;
+}
+.default-form-display .text-display { /* Style for text part */
+    /* Add styles if needed */
 }
 
-/* ── GRID ─────────────────────────────────────────────────────────── */
+/* ── GRID CONTAINER & TABLE ─────────────────────────────────────── */
 .grid-container {
   background: #fff; padding: 15px; border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow-x: auto;
-  margin-top: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow-x: auto; /* Allow horizontal scroll if needed */
+  margin-top: 10px; /* Space below prompt area */
+  width: max-content; /* Size container to table */
+  max-width: 95%; /* Prevent excessive width on large screens */
 }
 
 #interactiveTable {
-  border-collapse: collapse; table-layout: fixed;
+  border-collapse: collapse;
+  table-layout: fixed; /* Ensures cells respect width */
+  margin: 0 auto; /* Center table if container is wider */
 }
 
-#interactiveTable th {
-  padding: 4px; background: none; color: #222; font-weight: 600;
+/* ── GRID HEADERS (TH) ──────────────────────────────────────────── */
+#interactiveTable th { /* Common style for row/col headers */
+  padding: 4px;
+  background: none;
+  color: #222;
+  font-weight: 600;
   vertical-align: middle;
-  user-select: none;
+  user-select: none; /* Prevent selecting header text */
 }
+/* Column headers (top row) */
 .col-header {
   border-bottom: 2px solid var(--axis-border);
-  border-left: none; border-top: none; border-right: 1px solid #ccc;
+  border-right: 1px solid #ccc; /* Vertical divider */
   text-align: center;
-  height: 25px;
-  width: var(--cell-size);
+  height: 25px; /* Fixed height */
+  width: var(--cell-size); /* Match cell width */
 }
+.col-header:last-child { border-right: none; } /* No divider after last column header */
+
+/* Row headers (first column) */
 .row-header {
   border-right: 2px solid var(--axis-border);
-  border-top: none; border-left: none; border-bottom: 1px solid #ccc;
-  text-align: right; padding-right: 8px;
-  width: 30px;
-  height: var(--cell-height);
+  border-bottom: 1px solid #ccc; /* Horizontal divider */
+  text-align: right;
+  padding-right: 8px;
+  width: 30px; /* Fixed width */
+  height: var(--cell-height); /* Match cell height */
 }
+.row-header:last-child { border-bottom: none; } /* No divider below last row header */
+
+/* Corner cell (top-left) */
 .corner-cell {
-  background: transparent; border: none;
+  background: transparent;
+  border: none; /* No borders */
 }
 
+/* ── GRID CELLS (TD) ────────────────────────────────────────────── */
 #interactiveTable td {
   border: 1px solid #ccc;
   width: var(--cell-size); height: var(--cell-height);
   text-align: center; vertical-align: middle;
   padding: 2px; box-sizing: border-box;
-  transition: background-color var(--transition-speed), color var(--transition-speed);
+  transition: background-color var(--transition-speed), color var(--transition-speed), box-shadow var(--transition-speed);
   background: #fff;
   cursor: pointer;
-  position: relative;
-  --cell-category-bg: transparent;
-  background-color: var(--cell-category-bg);
+  position: relative; /* For potential absolute elements or pseudo-elements */
+  /* Define category background variable (set by JS or category color styles) */
+  --cell-category-bg: transparent; /* Default */
+  background-color: var(--cell-category-bg); /* Apply category bg */
 }
-#interactiveTable td:hover { background-color: #f0f0f0; }
+/* Hover effect - make slightly brighter */
+#interactiveTable td:hover {
+    filter: brightness(95%);
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.1); /* Subtle inset shadow */
+}
 
+/* ── ITEM NAME (Inside TD) ────────────────────────────────────── */
 .item-name {
-  display: none;
+  display: none; /* Hidden by default */
   font-size: 0.9em; color: #444;
-  user-select: none; word-break: break-word; line-height: 1.2;
-  padding: 0 2px;
+  user-select: none; /* Prevent text selection */
+  word-break: break-word; /* Wrap long names */
+  line-height: 1.2;
+  padding: 0 2px; /* Small horizontal padding */
+  /* Ensure visibility isn't overridden by parent if needed */
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.2s, visibility 0.2s;
 }
-body.items-visible #interactiveTable td .item-name { display: block; }
+/* Show item names when body has class */
+body.items-visible #interactiveTable td .item-name {
+    display: block;
+}
 
+/* ── CELL HIGHLIGHTING & FEEDBACK ───────────────────────────────── */
+
+/* Highlighted cell style */
 #interactiveTable td.highlight {
+  /* Use category color if set via --highlight-cell-bg, else default */
   background-color: var(--highlight-cell-bg, var(--highlight-color));
   outline: 2px solid var(--highlight-outline);
-  outline-offset: -2px;
+  outline-offset: -2px; /* Outline inside the cell */
   font-weight: bold;
-  color: black;
+  color: black; /* Ensure text contrast on potentially varied backgrounds */
+  z-index: 1; /* Bring highlight slightly above neighbours */
 }
+/* Ensure item name is always visible in highlighted cell */
 #interactiveTable td.highlight .item-name {
   display: block;
   color: black;
   font-weight: bold;
 }
 
-body.category-colors-visible:not(.items-visible) #interactiveTable td {
-    color: transparent;
+/* Feedback animation keyframes */
+@keyframes feedback-flash {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: 0 0 0 3px var(--feedback-color), inset 0 0 10px var(--feedback-color); } /* Add inset flash */
 }
-body.category-colors-visible:not(.items-visible) #interactiveTable td .item-name {
-    display: none;
+
+/* Apply animation for correct guess */
+#interactiveTable td.feedback-correct {
+  --feedback-color: rgba(40, 167, 69, 0.7); /* Green with alpha */
+  animation: feedback-flash var(--feedback-anim-duration) ease-out;
+  z-index: 2; /* Above normal highlight temporarily */
 }
-body.category-colors-visible:not(.items-visible) #interactiveTable td:hover {
-    filter: brightness(90%);
+
+/* Apply animation for incorrect guess */
+#interactiveTable td.feedback-wrong {
+  --feedback-color: rgba(220, 53, 69, 0.7); /* Red with alpha */
+  animation: feedback-flash var(--feedback-anim-duration) ease-out;
+  z-index: 2;
+}
+
+/* ── CATEGORY COLOR FILL ────────────────────────────────────────── */
+
+/* Apply when body has class and items are NOT visible */
+body.category-colors-visible #interactiveTable td {
+    background-color: var(--cell-category-bg); /* Use category color */
+    /* Background is already set by --cell-category-bg on TD */
+    /* color: transparent; */
+}
+
+/* Adjust hover feedback when category colors are on */
+body.category-colors-visible #interactiveTable td:hover {
+    filter: brightness(90%); /* Darken slightly on hover */
+    box-shadow: none; /* Remove inset shadow hover effect */
+}
+
+/* --- Responsive Adjustments (Example) --- */
+@media (max-width: 768px) {
+    h1 { font-size: 1.5em; }
+    .grid-container { max-width: 100%; padding: 10px; }
+    :root { --cell-size: 50px; --cell-height: 35px; } /* Smaller cells */
+    .default-form-display { width: 90%; font-size: 1em; }
+}
+
+@media (max-width: 480px) {
+    :root { --panel-width: 260px; } /* Narrower panel */
+    .settings-panel { padding: 15px; }
+    .settings-panel h2 { font-size: 1.2em; }
+    .settings-panel button, .settings-panel select, .import-button { font-size: 0.9em; min-height: 34px; padding: 8px 10px; }
+    :root { --cell-size: 40px; --cell-height: 30px; } /* Even smaller cells */
+    #interactiveTable th { font-size: 0.9em; }
+    .row-header { width: 25px; padding-right: 5px; }
+    .item-name { font-size: 0.8em; }
 }
