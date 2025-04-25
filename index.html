@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>MemoViz Enhanced</title>
+  <title>MemoViz</title>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
@@ -15,52 +15,76 @@
     aria-label="Open settings"
     aria-expanded="false"
     aria-controls="settingsPanel"
-  >⚙️</button>
-
-  <aside id="settingsPanel" class="settings-panel" aria-hidden="true" tabindex="-1">
+  >⚙️</button> <aside id="settingsPanel" class="settings-panel" aria-hidden="true" tabindex="-1">
     <h2>Settings</h2>
 
-    <div class="controls main-controls">
-      <span id="inputFeedback" aria-live="polite">
-        Typed: <span id="typedDigits">--</span>
-      </span>
-      <button type="button" id="toggleItemsBtn" title="Show or hide item names">Show Names</button>
-      <button type="button" id="clearBtn" title="Clear current input">Clear Input</button>
-      <div class="import-controls">
-        <label for="importFile" class="import-button" title="Load JSON data">Load JSON</label>
-        <input type="file" id="importFile" accept=".json"/>
-      </div>
-      <div id="notification" role="alert" aria-live="assertive" hidden></div>
+    <div class="settings-section file-controls">
+        <div class="import-controls">
+          <label for="importFile" class="import-button" title="Load JSON data">Load JSON</label>
+          <input type="file" id="importFile" accept=".json"/> </div>
+        <div id="notification" role="alert" aria-live="assertive" hidden></div>
     </div>
 
-    <div class="controls display-controls">
-      <div class="language-selector">
-        <label for="languageSelect">Language:</label>
-        <select id="languageSelect" disabled>
-          <option value="">-- Load Data --</option>
-        </select>
-      </div>
-      <div class="form-selector"><span>Display Form (in grid):</span></div>
-       <div class="view-options">
-           <label>
-               <input type="checkbox" id="showDefaultFormToggle"> Show Full Name Above Grid
-           </label>
-           <label>
-               <input type="checkbox" id="colorCellsToggle"> Color Cells by Category (when names hidden)
-           </label>
-       </div>
+    <div class="mode-selector settings-section">
+        <h4>Mode:</h4>
+        <div class="radio-group">
+            <label><input type="radio" name="gameMode" value="explore" checked> Explore</label>
+            <label><input type="radio" name="gameMode" value="guess-cell"> Game: Guess Cell</label>
+            <label><input type="radio" name="gameMode" value="timed-recall"> Game: Timed Recall</label>
+        </div>
     </div>
-  </aside>
 
-  <h1>MemoViz</h1>
+    <div id="explore-controls" class="settings-section" data-mode="explore">
+        <h4>Explore Options:</h4>
+        <div class="language-selector">
+            <label for="languageSelect">Language:</label>
+            <select id="languageSelect" disabled>
+              <option value="">-- Load Data --</option>
+            </select>
+        </div>
+        <div class="form-selector">
+            <span>Display Form (in grid):</span>
+            </div>
+        <div class="view-options">
+           <label><input type="checkbox" id="showDefaultFormToggle"> Show Full Name Above Grid</label>
+           <label><input type="checkbox" id="colorCellsToggle"> Color Cells by Category</label>
+           <button type="button" id="toggleItemsBtn" title="Show or hide item names">Show Names</button>
+        </div>
+    </div>
 
-  <div id="defaultFormDisplay" class="default-form-display" aria-live="polite" hidden>
+    <div id="guess-cell-controls" class="settings-section game-controls" data-mode="guess-cell" hidden>
+        <h4>Game: Guess Cell</h4>
+        <button type="button" id="guessGameBtn" class="start-stop-btn">Start Game</button>
+        <div id="scoreDisplay">Score: 0</div>
+        </div>
+
+    <div id="timed-recall-controls" class="settings-section game-controls" data-mode="timed-recall" hidden>
+        <h4>Game: Timed Recall</h4>
+         <label for="recallSlider">Reveal Delay: <span id="sliderValueDisplay">3</span>s</label>
+         <input type="range" id="recallSlider" min="1" max="10" value="3" step="1" style="width: 100%;">
+         <button type="button" id="recallGameBtn" class="start-stop-btn">Start Game</button>
+    </div>
+
+    <div class="settings-section">
+         <label><input type="checkbox" id="debugToggle"> Enable Debug Options</label>
+         <div id="debug-options" class="debug-options" hidden>
+            <h4>Debug Info:</h4>
+             <span id="inputFeedback" aria-live="polite">
+                Typed: <span id="typedDigits">--</span>
+             </span>
+             <button type="button" id="clearBtn" title="Clear current input">Clear Input</button>
+         </div>
+     </div>
+
+  </aside> <h1>MemoViz</h1>
+
+  <div id="defaultFormDisplay" class="default-form-display" aria-live="assertive" hidden>
       <span class="coord-display">--</span>: <span class="text-display">---</span>
   </div>
 
   <div class="grid-container">
     <table id="interactiveTable" role="grid" aria-label="Interactive grid">
-      <caption class="visually-hidden">Interactive grid with row and column labels dynamically generated based on loaded data. Use number keys (ColumnRow) to highlight cells.</caption>
+      <caption class="visually-hidden">Interactive grid with row and column labels dynamically generated based on loaded data. Interaction depends on selected mode (Explore, Guess Cell, Timed Recall). Use number keys (ColumnRow) in Explore mode to highlight cells.</caption>
       <thead>
         <tr>
           <th scope="col" class="corner-cell"></th>
