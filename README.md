@@ -148,7 +148,7 @@ This project is actively being developed. Here's a rough outline of current and 
       * Web App Manifest for installability ("Add to Home Screen").
       * Refine UI/UX:
           * Improve transitions and visual feedback.
-          * Enhanced styling for a more "modern" grid/card appearance (deferred).
+          * Enhanced styling for a more "modern" grid/card appearance.
           * Robust focus management in modals and across the app.
           * More user-friendly error display and notifications.
       * Thorough testing and bug fixing.
