@@ -35,6 +35,10 @@ Follow these instructions to get the project running on your local machine for d
     ```bash
     npm run dev -- --open
     ```
+    Or you can specify the host and port:
+    ```bash
+    npm run dev -- --host 0.0.0.0 --port 8085
+    ```
 
 *   **Previewing the Production Build:**
     To preview how the application will look and behave in a production environment, first build the project (see next step), and then run:
@@ -79,4 +83,4 @@ npm run check:watch
 Details on how to contribute to the project will be added here.
 
 ## License
-This project is licensed under the [LICENSE_NAME] - see the LICENSE file for details. (Note: Please update LICENSE_NAME if applicable, or remove if no specific license is chosen beyond what's in the LICENSE file).
+This project is licensed under [GPL-3.0](https://github.com/deldesir/memoviz#GPL-3.0-1-ov-file)
