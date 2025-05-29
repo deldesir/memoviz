@@ -1,7 +1,7 @@
-const APP_SHELL_CACHE = 'app-shell-cache-v2';
-const STATIC_ASSETS_CACHE = 'static-assets-cache-v2';
-const CATALOG_CACHE = 'catalog-cache-v2';
-const DATASETS_CACHE = 'datasets-cache-v2'; // Cache for datasets
+const APP_SHELL_CACHE = 'app-shell-cache-v3';
+const STATIC_ASSETS_CACHE = 'static-assets-cache-v3';
+const CATALOG_CACHE = 'catalog-cache-v3';
+const DATASETS_CACHE = 'datasets-cache-v3'; // Cache for datasets
 
 const ALL_CACHES = [
   APP_SHELL_CACHE,
@@ -153,20 +153,22 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       if (cachedResponse) {
-        // console.log('Service Worker: Serving from cache v2:', event.request.url);
+        // console.log('Service Worker: Serving from cache v3:', event.request.url);
         return cachedResponse;
       }
-      // console.log('Service Worker: Fetching from network v2:', event.request.url);
+      // console.log('Service Worker: Fetching from network v3:', event.request.url);
       return fetch(event.request).then(networkResponse => {
         // If it's a SvelteKit generated asset (typically under /_app/) or other important root paths, cache it dynamically.
         if ((requestUrl.pathname.startsWith('/_app/') || requestUrl.pathname === '/') &&
             networkResponse && networkResponse.status === 200 && event.request.method === 'GET') {
-          // console.log('Service Worker: Dynamically caching asset v2:', event.request.url);
-          // Decide which cache: APP_SHELL_CACHE for core stuff, STATIC_ASSETS_CACHE for others if desired.
-          // For simplicity, let's use APP_SHELL_CACHE for SvelteKit's own assets.
-          const cacheName = requestUrl.pathname.startsWith('/_app/') ? APP_SHELL_CACHE : STATIC_ASSETS_CACHE; // These are v2 names now
-          return caches.open(cacheName).then(cache => {
-            // console.log(`Service Worker: Adding to ${cacheName} (v2): ${event.request.url}`);
+          // If it's the root path or an _app asset, use APP_SHELL_CACHE.
+          // Otherwise, for any other unforeseen static assets that might be caught here,
+          // STATIC_ASSETS_CACHE could be a fallback, though ideally all static assets are predefined.
+          const cacheToUse = (requestUrl.pathname.startsWith('/_app/') || requestUrl.pathname === '/') 
+                             ? APP_SHELL_CACHE 
+                             : STATIC_ASSETS_CACHE; // Fallback, though less likely to be hit by non-_app non-/ paths
+          console.log(`Service Worker: Dynamically caching ${requestUrl.pathname} into ${cacheToUse}`);
+          return caches.open(cacheToUse).then(cache => {
             cache.put(event.request, networkResponse.clone());
             return networkResponse;
           });
