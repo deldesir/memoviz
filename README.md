@@ -35,7 +35,7 @@ At its core, MemoViz takes custom datasets defined in JSON format and displays t
 ## Tech Stack 🥞
 
 * [SvelteKit](https://kit.svelte.dev/)
-* [Svelte 4 (with Runes, once fully adopted)](https://svelte.dev/blog/runes)
+* [Svelte](https://svelte.dev/)
 * TypeScript / JSDoc for type safety
 * Vite for fast development and builds
 * (Future) Service Workers for PWA capabilities
