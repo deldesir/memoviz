@@ -114,7 +114,7 @@
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
-      tabindex="-1"  {# Make the modal content div programmatically focusable #}
+      tabindex="-1"
       bind:this={modalContentElement}
       transition:fly={{ duration: 300, y: -50, easing: quintOut }}
       on:keydown={handleKeydown}
