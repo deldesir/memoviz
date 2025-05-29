@@ -1,0 +1,516 @@
+{
+  "meta": {
+    "datasetId": "bible-books-v1",
+    "datasetName": {
+      "en": "Bible Books",
+      "fr": "Livres de la Bible",
+      "ht": "Liv Bib la"
+    },
+    "datasetDescription": {
+      "en": "A list of books in the Bible, including their abbreviations and categories.",
+      "fr": "Une liste de livres de la Bible, y compris leurs abréviations et catégories.",
+      "ht": "Yon lis liv nan Bib la, ki gen ladan abrevyasyon ak kategori yo."
+    },
+    "version": "1.0",
+    "attribution": "https://www.jw.org/en/library/books/bible-books/",
+    "license": "CC BY-NC-SA 4.0",
+    "licenseURL": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    "rows": 10,
+    "cols": 7,
+    "languages": {
+      "en": "English",
+      "fr": "Français",
+      "ht": "Kreyòl Ayisyen"
+    },
+    "defaultLanguage": "ht",
+    "forms": ["Full Name", "Abbreviation", "Symbol/Letter"],
+    "categories": {
+      "writing_of_moses": {
+        "color": "#E4FF97",
+        "names": {
+          "en": "The writing of Moses",
+          "fr": "Les écrits de Moïse",
+          "ht": "Ekriti Moyiz"
+        }
+      },
+       "promised_land": {
+        "color": "#B2DAE4",
+        "names": {
+          "en": "Israel enters the Promised Land",
+          "fr": "Israël entre dans la Terre Promise",
+          "ht": "Izrayèl antre nan Tè a Pwomiz"
+        }
+      },
+      "kings_ruled": {
+        "color": "#F4CC9C",
+        "names": {
+          "en": "When the kings ruled Israel",
+          "fr": "Quand les rois régnaient sur Israël",
+          "ht": "Lè wa yo t ap gouvènen Izrayèl"
+        }
+      },
+      "jews_return": {
+        "color": "#B3CED6",
+        "names": {
+          "en": "Jews return from exile",
+          "fr": "Les Juifs reviennent de l'exil",
+          "ht": "Jwif yo tounen soti nan ekzil"
+        }
+      },
+      "songs_and_wisdom": {
+        "color": "#95DCE4",
+        "names": {
+          "en": "Books of songs and practical wisdom",
+          "fr": "Livres de chants et de sagesse pratique",
+          "ht": "Liv chante ak bonjan savès pratik"
+        }
+      },
+      "prophets": {
+        "color": "#E19B8B",
+        "names": {
+          "en": "Prophets",
+          "fr": "Prophètes",
+          "ht": "Pwofèt"
+        }
+      },
+      "jesus_life_and_ministry": {
+        "color": "#FDC727",
+        "names": {
+          "en": "Accounts of Jesus' life and ministry",
+          "fr": "Récits de la vie et du ministère de Jésus",
+          "ht": "Rekit lavi Jezi ak ministè li"
+        }
+      },
+      "christian_congregation": {
+        "color": "#AFE0E7",
+        "names": {
+          "en": "Growth of the Christian congregation",
+          "fr": "Croissance de l'assemblée chrétienne",
+          "ht": "Kwasans kominote kretyen an"
+        }
+      },
+      "paul_letters": {
+        "color": "#EFC2C9",
+        "names": {
+          "en": "The letters of Paul",
+          "fr": "Les lettres de Paul",
+          "ht": "Lèt Pòl yo"
+        }
+      },
+      "apostles_and_disciples": {
+        "color": "#D8C4B7",
+        "names": {
+          "en": "The writings of the other apostles and disciples",
+          "fr": "Les écrits des autres apôtres et disciples",
+          "ht": "Ekriti lòt apòt ak disip yo"
+        }
+      },
+      "unknown": {
+        "color": "#95DCE4",
+        "names": {
+          "en": "Unknown",
+          "fr": "Inconnu",
+          "ht": "Enkoni"
+        }
+      }
+    }
+  },
+  "items": {
+    "01": {
+      "category": "writing_of_moses",
+      "en": ["Genesis", "Ge", "G"],
+      "fr": ["Genèse", "Gn", "G"],
+      "ht": ["Jenèz", "Jen", "J"]
+    },
+    "02": {
+      "category": "writing_of_moses",
+      "en": ["Exodus", "Ex", "E"],
+      "fr": ["Exode", "Ex", "E"],
+      "ht": ["Egzòd", "Eg", "E"]
+    },
+    "03": {
+      "category": "writing_of_moses",
+      "en": ["Leviticus", "Le", "L"],
+      "fr": ["Lévitique", "Lv", "L"],
+      "ht": ["Levitik", "Le", "L"]
+    },
+    "04": {
+      "category": "writing_of_moses",
+      "en": ["Numbers", "Nu", "N"],
+      "fr": ["Nombres", "Nb", "N"],
+      "ht": ["Nonb", "Nb", "N"]
+    },
+    "05": {
+      "category": "writing_of_moses",
+      "en": ["Deuteronomy", "De", "D"],
+      "fr": ["Deutéronome", "Dt", "D"],
+      "ht": ["Detewonòm", "Dt", "D"]
+    },
+    "06": {
+      "category": "promised_land",
+      "en": ["Joshua", "Jos", "J"],
+      "fr": ["Josué", "Jos", "J"],
+      "ht": ["Jozye", "Joz", "J"]
+    },
+    "07": {
+      "category": "promised_land",
+      "en": ["Judges", "Jg", "J"],
+      "fr": ["Juges", "Jg", "J"],
+      "ht": ["Jij", "Jj", "J"]
+    },
+    "08": {
+      "category": "promised_land",
+      "en": ["Ruth", "Ru", "R"],
+      "fr": ["Ruth", "Ru", "R"],
+      "ht": ["Rit", "Rt", "R"]
+    },
+    "09": {
+      "category": "kings_ruled",
+      "en": ["1 Samuel", "1Sa", "S"],
+      "fr": ["1 Samuel", "1S", "S"],
+      "ht": ["1 Samyèl", "1Sa", "S"]
+    },
+    "10": {
+      "category": "kings_ruled",
+      "en": ["2 Samuel", "2Sa", "S"],
+      "fr": ["2 Samuel", "2S", "S"],
+      "ht": ["2 Samyèl", "2Sa", "S"]
+    },
+    "11": {
+      "category": "kings_ruled",
+      "en": ["1 Kings", "1Ki", "K"],
+      "fr": ["1 Rois", "1R", "R"],
+      "ht": ["1 Wa", "1Wa", "W"]
+    },
+    "12": {
+      "category": "kings_ruled",
+      "en": ["2 Kings", "2Ki", "K"],
+      "fr": ["2 Rois", "2R", "R"],
+      "ht": ["2 Wa", "2Wa", "W"]
+    },
+    "13": {
+      "category": "kings_ruled",
+      "en": ["1 Chronicles", "1Ch", "C"],
+      "fr": ["1 Chroniques", "1Ch", "C"],
+      "ht": ["1 Kwonik", "1Kw", "K"]
+    },
+    "14": {
+      "category": "kings_ruled",
+      "en": ["2 Chronicles", "2Ch", "C"],
+      "fr": ["2 Chroniques", "2Ch", "C"],
+      "ht": ["2 Kwonik", "2Kw", "K"]
+    },
+    "15": {
+      "category": "jews_return",
+      "en": ["Ezra", "Ezr", "E"],
+      "fr": ["Esdras", "Esd", "E"],
+      "ht": ["Esdras", "Esd", "E"]
+    },
+    "16": {
+      "category": "jews_return",
+      "en": ["Nehemiah", "Ne", "N"],
+      "fr": ["Néhémie", "Né", "N"],
+      "ht": ["Neyemi", "Ne", "N"]
+    },
+    "17": {
+      "category": "jews_return",
+      "en": ["Esther", "Es", "E"],
+      "fr": ["Esther", "Est", "E"],
+      "ht": ["Estè", "Est", "E"]
+    },
+    "18": {
+      "category": "writing_of_moses",
+      "en": ["Job", "Job", "J"],
+      "fr": ["Job", "Jb", "J"],
+      "ht": ["Jòb", "Jb", "J"]
+    },
+    "19": {
+      "category": "songs_and_wisdom",
+      "en": ["Psalms", "Ps", "P"],
+      "fr": ["Psaumes", "Ps", "P"],
+      "ht": ["Sòm", "Sm", "S"]
+    },
+    "20": {
+      "category": "songs_and_wisdom",
+      "en": ["Proverbs", "Pr", "P"],
+      "fr": ["Proverbes", "Pr", "P"],
+      "ht": ["Pwovèb", "Pw", "P"]
+    },
+    "21": {
+      "category": "songs_and_wisdom",
+      "en": ["Ecclesiastes", "Ec", "E"],
+      "fr": ["Ecclésiaste", "Ec", "E"],
+      "ht": ["Eklezyas", "Ekl", "E"]
+    },
+    "22": {
+      "category": "songs_and_wisdom",
+      "en": ["Song of Solomon", "Ca", "C"],
+      "fr": ["Chant de Salomon", "Ct", "C"],
+      "ht": ["Chante Salomon an", "Ch", "C"]
+    },
+    "23": {
+      "category": "prophets",
+      "en": ["Isaiah", "Isa", "I"],
+      "fr": ["Isaïe", "Is", "I"],
+      "ht": ["Ezayi", "Eza", "E"]
+    },
+    "24": {
+      "category": "prophets",
+      "en": ["Jeremiah", "Jer", "J"],
+      "fr": ["Jérémie", "Jr", "J"],
+      "ht": ["Jeremi", "Jr", "J"]
+    },
+    "25": {
+      "category": "prophets",
+      "en": ["Lamentations", "La", "L"],
+      "fr": ["Lamentations", "Lm", "L"],
+      "ht": ["Lamantasyon", "Lm", "L"]
+    },
+    "26": {
+      "category": "prophets",
+      "en": ["Ezekiel", "Eze", "E"],
+      "fr": ["Ézéchiel", "Éz", "E"],
+      "ht": ["Ezekyèl", "Eze", "E"]
+    },
+    "27": {
+        "category": "prophets",
+      "en": ["Daniel", "Da", "D"],
+      "fr": ["Daniel", "Dn", "D"],
+      "ht": ["Dànyèl", "Dn", "D"]
+    },
+    "28": {
+      "category": "prophets",
+      "en": ["Hosea", "Ho", "H"],
+      "fr": ["Osée", "Os", "O"],
+      "ht": ["Oze", "Oz", "O"]
+    },
+    "29": {
+      "category": "prophets",
+      "en": ["Joel", "Joe", "J"],
+      "fr": ["Joël", "Jl", "J"],
+      "ht": ["Jowèl", "Jl", "J"]
+    },
+    "30": {
+      "category": "prophets",
+      "en": ["Amos", "Am", "A"],
+      "fr": ["Amos", "Am", "A"],
+      "ht": ["Amòs", "Am", "A"]
+    },
+    "31": {
+      "category": "prophets",
+      "en": ["Obadiah", "Ob", "O"],
+      "fr": ["Abdias", "Ab", "A"],
+      "ht": ["Obadya", "Ob", "O"]
+    },
+    "32": {
+      "category": "prophets",
+      "en": ["Jonah", "Jon", "J"],
+      "fr": ["Jonas", "Jon", "J"],
+      "ht": ["Jonas", "Jon", "J"]
+    },
+    "33": {
+      "category": "prophets",
+      "en": ["Micah", "Mic", "M"],
+      "fr": ["Michée", "Mi", "M"],
+      "ht": ["Miche", "Mi", "M"]
+    },
+    "34": {
+      "category": "prophets",  
+      "en": ["Nahum", "Na", "N"],
+      "fr": ["Nahum", "Na", "N"],
+      "ht": ["Nawoum", "Na", "N"]
+    },
+    "35": {
+      "category": "prophets",
+      "en": ["Habakkuk", "Hab", "H"],
+      "fr": ["Habacuc", "Hab", "H"],
+      "ht": ["Abakouk", "Ab", "A"]
+    },
+    "36": {
+      "category": "prophets",
+      "en": ["Zephaniah", "Zep", "Z"],
+      "fr": ["Sophonie", "Sph", "S"],
+      "ht": ["Sofoni", "Sf", "S"]
+    },
+    "37": {
+      "category": "prophets",
+      "en": ["Haggai", "Hag", "H"],
+      "fr": ["Aggée", "Ag", "A"],
+      "ht": ["Aje", "Aj", "A"]
+    },
+    "38": {
+      "category": "prophets",
+      "en": ["Zechariah", "Zec", "Z"],
+      "fr": ["Zacharie", "Za", "Z"],
+      "ht": ["Zakari", "Za", "Z"]
+    },
+    "39": {
+      "category": "prophets",
+      "en": ["Malachi", "Mal", "M"],
+      "fr": ["Malachie", "Ml", "M"],
+      "ht": ["Malachi", "Ml", "M"]
+    },
+    "40": {
+      "category": "jesus_life_and_ministry",
+      "en": ["Matthew", "Mat", "M"],
+      "fr": ["Matthieu", "Mt", "M"],
+      "ht": ["Matye", "Mt", "M"]
+    },
+    "41": {
+      "category": "jesus_life_and_ministry",
+      "en": ["Mark", "Mr", "M"],
+      "fr": ["Marc", "Mc", "M"],
+      "ht": ["Mak", "Mk", "M"]
+    },
+    "42": {
+      "category": "jesus_life_and_ministry",
+      "en": ["Luke", "Lu", "L"],
+      "fr": ["Luc", "Lc", "L"],
+      "ht": ["Lik", "Lk", "L"]
+    },
+    "43": {
+      "category": "jesus_life_and_ministry",
+      "en": ["John", "Joh", "J"],
+      "fr": ["Jean", "Jean", "J"],
+      "ht": ["Jan", "Jan", "J"]
+    },
+    "44": {
+      "category": "christian_congregation",
+      "en": ["Acts", "Ac", "A"],
+      "fr": ["Actes", "Ac", "A"],
+      "ht": ["Travay", "Tr", "T"]
+    },
+    "45": {
+      "category": "paul_letters",
+      "en": ["Romans", "Ro", "R"],
+      "fr": ["Romains", "Rm", "R"],
+      "ht": ["Women", "Wm", "W"]
+    },
+    "46": {
+      "category": "paul_letters",
+      "en": ["1 Corinthians", "1Co", "C"],
+      "fr": ["1 Corinthiens", "1Co", "C"],
+      "ht": ["1 Korentyen", "1Ko", "K"]
+    },
+    "47": {
+      "category": "paul_letters",
+      "en": ["2 Corinthians", "2Co", "C"],
+      "fr": ["2 Corinthiens", "2Co", "C"],
+      "ht": ["2 Korentyen", "2Ko", "K"]
+    },
+    "48": {
+      "category": "paul_letters",
+      "en": ["Galatians", "Ga", "G"],
+      "fr": ["Galates", "Ga", "G"],
+      "ht": ["Galat", "Ga", "G"]
+    },
+    "49": {
+      "category": "paul_letters",
+      "en": ["Ephesians", "Eph", "E"],
+      "fr": ["Éphésiens", "Éph", "E"],
+      "ht": ["Efezyen", "Ef", "E"]
+    },
+    "50": {
+      "category": "paul_letters",
+      "en": ["Philippians", "Php", "P"],
+      "fr": ["Philippiens", "Php", "P"],
+      "ht": ["Filipyen", "Fp", "F"]
+    },
+    "51": {
+      "category": "paul_letters",
+      "en": ["Colossians", "Col", "C"],
+      "fr": ["Colossiens", "Col", "C"],
+      "ht": ["Kolosyen", "Kl", "K"]
+    },
+    "52": {
+      "category": "paul_letters",
+      "en": ["1 Thessalonians", "1Th", "T"],
+      "fr": ["1 Thessaloniciens", "1Th", "T"],
+      "ht": ["1 Tesalonisyen", "1Te", "T"]
+    },
+    "53": {
+      "category": "paul_letters",
+      "en": ["2 Thessalonians", "2Th", "T"],
+      "fr": ["2 Thessaloniciens", "2Th", "T"],
+      "ht": ["2 Tesalonisyen", "2Te", "T"]
+    },
+    "54": {
+      "category": "paul_letters",
+      "en": ["1 Timothy", "1Ti", "T"],
+      "fr": ["1 Timothée", "1Tm", "T"],
+      "ht": ["1 Timote", "1Ti", "T"]
+    },
+    "55": {
+      "category": "paul_letters",
+      "en": ["2 Timothy", "2Ti", "T"],
+      "fr": ["2 Timothée", "2Tm", "T"],
+      "ht": ["2 Timote", "2Ti", "T"]
+    },
+    "56": {
+      "category": "paul_letters",
+      "en": ["Titus", "Tit", "T"],
+      "fr": ["Tite", "Tt", "T"],
+      "ht": ["Tit", "Tt", "T"]
+    },
+    "57": {
+      "category": "paul_letters",
+      "en": ["Philemon", "Phm", "P"],
+      "fr": ["Philémon", "Phm", "P"],
+      "ht": ["Filemon", "Fm", "F"]
+    },
+    "58": {
+      "category": "paul_letters",
+      "en": ["Hebrews", "Heb", "H"],
+      "fr": ["Hébreux", "Hé", "H"],
+      "ht": ["Ebre", "Eb", "E"]
+    },
+    "59": {
+      "category": "apostles_and_disciples",
+      "en": ["James", "Jas", "J"],
+      "fr": ["Jacques", "Jc", "J"],
+      "ht": ["Jak", "Jk", "J"]
+    },
+    "60": {
+      "category": "apostles_and_disciples",
+      "en": ["1 Peter", "1Pe", "P"],
+      "fr": ["1 Pierre", "1P", "P"],
+      "ht": ["1 Pyè", "1P", "P"]
+    },
+    "61": {
+      "category": "apostles_and_disciples",
+      "en": ["2 Peter", "2Pe", "P"],
+      "fr": ["2 Pierre", "2P", "P"],
+      "ht": ["2 Pyè", "2P", "P"]
+    },
+    "62": {
+      "category": "apostles_and_disciples",
+      "en": ["1 John", "1Jo", "J"],
+      "fr": ["1 Jean", "1J", "J"],
+      "ht": ["1 Jan", "1J", "J"]
+    },
+    "63": {
+      "category": "apostles_and_disciples",
+      "en": ["2 John", "2Jo", "J"],
+      "fr": ["2 Jean", "2J", "J"],
+      "ht": ["2 Jan", "2J", "J"]
+    },
+    "64": {
+      "category": "apostles_and_disciples",
+      "en": ["3 John", "3Jo", "J"],
+      "fr": ["3 Jean", "3J", "J"],
+      "ht": ["3 Jan", "3J", "J"]
+    },
+    "65": {
+      "category": "apostles_and_disciples",
+      "en": ["Jude", "Jude", "J"],
+      "fr": ["Jude", "Jude", "J"],
+      "ht": ["Jid", "Jd", "J"]
+    },
+    "66": {
+      "category": "apostles_and_disciples",
+      "en": ["Revelation", "Re", "R"],
+      "fr": ["Révélation", "Ré", "R"],
+      "ht": ["Revelasyon", "Re", "R"]
+    }
+  }
+}

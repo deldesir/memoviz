@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "datasetId": "periodic-table-v1",
+    "datasetName": {
+      "en": "Periodic Table",
+      "fr": "Tableau Périodique",
+      "ht": "Tablo Peryodik Eleman yo"
+    },
+    "datasetDescription": {
+      "en": "Chemical elements arranged by atomic number and properties.",
+      "fr": "Les éléments chimiques classés par numéro atomique et propriétés.",
+      "ht": "Eleman chimik yo ranje según nimewo atomik ak pwopriyete."
+    },
+    "version": "1.0",
+    "attribution": "Various scientific sources",
+    "rows": 10,
+    "cols": 7,
+    "languages": {
+      "en": "English",
+      "fr": "Français",
+      "ht": "Kreyòl Ayisyen"
+    },
+    "defaultLanguage": "en",
+    "forms": ["Full Name", "Abbreviation", "Symbol/Letter"],
+    "categories": {
+      "alkali_metal": { "color": "#ffcc80", "names": { "en": "Alkali Metal", "fr": "Métal alcalin", "ht": "Metal alkalen" } },
+      "noble_gas": { "color": "#c0ffff", "names": { "en": "Noble Gas", "fr": "Gaz noble", "ht": "Gaz Nòb" } },
+      "nonmetal": { "color": "#ccffcc", "names": { "en": "Nonmetal", "fr": "Non-métal", "ht": "Nonmetal" } },
+      "halogen": { "color": "#ffffcc", "names": { "en": "Halogen", "fr": "Halogène", "ht": "Alojèn" } },
+      "transition_metal": { "color": "#ffcccc", "names": { "en": "Transition Metal", "fr": "Métal de transition", "ht": "Metal Tranzisyon" } },
+      "lanthanide": { "color": "#ffbfff", "names": { "en": "Lanthanide", "fr": "Lanthanide", "ht": "Lantanid" } },
+      "unknown": { "color": "#e0e0e0", "names": { "en": "Unknown", "fr": "Inconnu", "ht": "Enkoni" } }
+    }
+  },
+  "items": {
+    "00": { "category": "nonmetal", "en": ["Hydrogen", "H", "H"], "fr": ["Hydrogène", "H", "H"], "ht": ["Idwojèn", "H", "H"] },
+    "01": { "category": "alkali_metal", "en": ["Lithium", "Li", "L"], "fr": ["Lithium", "Li", "L"], "ht": ["Lityòm", "Li", "L"] },
+    "10": { "category": "noble_gas", "en": ["Helium", "He", "H"], "fr": ["Hélium", "He", "H"], "ht": ["Elyòm", "He", "H"] },
+    "60": { "category": "halogen", "en": ["Fluorine", "F", "F"], "fr": ["Fluor", "F", "F"], "ht": ["Fliyò", "F", "F"] },
+    "23": { "category": "transition_metal", "en": ["Vanadium", "V", "V"], "fr": ["Vanadium", "V", "V"], "ht": ["Vanadyòm", "V", "V"] },
+    "44": { "category": "unknown", "en": ["Example Item", "Ex", "X"], "fr": ["Objet Exemple", "Ex", "X"], "ht": ["Egzanp Atik", "Ex", "X"] },
+    "55": null,
+    "69": { "category": "lanthanide", "en": ["Last Element", "Last", "L"], "fr": ["Dernier Élément", "Dern", "D"], "ht": ["Eleman Dènye", "Den", "D"] }
+  }
+}

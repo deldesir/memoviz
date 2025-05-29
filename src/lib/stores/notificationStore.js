@@ -1,0 +1,54 @@
+// src/lib/stores/notificationStore.js
+import { writable } from 'svelte/store';
+import { browser } from '$app/environment';
+
+/**
+ * @typedef {'info' | 'success' | 'error' | 'warning'} NotificationType
+ */
+
+/**
+ * @typedef {Object} NotificationState
+ * @property {string} message
+ * @property {NotificationType} type
+ * @property {boolean} visible
+ * @property {number} duration - Duration in ms (0 for persistent)
+ */
+
+/** @type {import('svelte/store').Writable<NotificationState>} */
+export const notification = writable({ message: '', type: 'info', visible: false, duration: 0 });
+
+/** @type {number | null | ReturnType<typeof setTimeout>} */
+let timeoutId = null;
+
+/**
+ * Shows a notification message.
+ * @param {string} message - The message to display.
+ * @param {NotificationType} [type='info'] - The type of notification.
+ * @param {number} [duration=4000] - How long to show in ms (0 for persistent).
+ */
+export function showNotification(message, type = 'info', duration = 4000) {
+    if (!browser) return; // Don't show notifications during SSR
+
+    if (timeoutId !== null) {
+        clearTimeout(timeoutId); // Clear previous timer
+        timeoutId = null;
+    }
+
+    notification.set({ message, type, visible: true, duration });
+
+    if (duration > 0) {
+        timeoutId = setTimeout(() => {
+            notification.update(n => ({ ...n, visible: false })); // Hide after duration
+            timeoutId = null;
+        }, duration);
+    }
+}
+
+/** Hides the current notification */
+export function hideNotification() {
+     if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+    }
+    notification.update(n => ({ ...n, visible: false }));
+}

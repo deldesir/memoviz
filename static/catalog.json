@@ -1,0 +1,34 @@
+[
+  {
+    "id": "periodic-table-v1",
+    "name": {
+      "en": "Periodic Table",
+      "fr": "Tableau Périodique",
+      "ht": "Tablo Peryodik Eleman yo"
+    },
+    "description": {
+      "en": "Chemical elements arranged by atomic number and properties.",
+      "fr": "Les éléments chimiques classés par numéro atomique et propriétés.",
+      "ht": "Eleman chimik yo ranje según nimewo atomik ak pwopriyete."
+    },
+    "filePath": "/data/periodic_table.json",
+    "defaultLanguage": "en",
+    "thumbnail": "/images/element-icon.png"
+  },
+  {
+    "id": "bible-books-v1",
+    "name": {
+      "en": "Bible Books",
+      "fr": "Livres de la Bible",
+      "ht": "Liv Labib yo"
+    },
+    "description": {
+      "en": "List and organization of the 66 books of the Holy Bible.",
+      "fr": "Liste et organisation des 66 livres de la Sainte Bible.",
+      "ht": "Lis ak òganizasyon 66 liv ki nan Bib la."
+    },
+    "filePath": "/data/bible_books.json",
+    "defaultLanguage": "ht",
+    "thumbnail": "/images/bible-icon.png"
+  }
+]
