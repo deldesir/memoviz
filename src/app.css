@@ -1,0 +1,101 @@
+/* src/app.css */
+/* Global styles, CSS variables, utilities, and base responsive rules */
+
+/* ── CSS VARIABLES ───────────────────────────────────────────────── */
+:root {
+  /* Grid & Cell (Still needed globally for components) */
+  --cell-size: 60px;
+  --cell-height: 40px;
+  --axis-border: #333;
+
+  /* Highlighting & Feedback (Used by components) */
+  --highlight-color: #a0e0ff;
+  --highlight-outline: #007bff;
+  --feedback-correct-color: #28a745;
+  --feedback-wrong-color: #dc3545;
+  --feedback-anim-duration: 0.5s;
+
+  /* Settings Panel / Modal (Defaults, can be overridden) */
+  --panel-width: 300px; /* Used by Modal max-width potentially */
+  --panel-bg: #fff;
+  --panel-shadow: rgba(0,0,0,0.2);
+
+  /* Other UI */
+  /* --default-display-bg: #f0f0f0; -- Handled by Header now */
+  /* --default-display-border: #ccc; -- Handled by Header now */
+  /* --default-display-text: #333; -- Handled by Header now */
+  --transition-speed: 0.3s; /* General transition speed */
+}
+
+/* ── UTILITIES ───────────────────────────────────────────────────── */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* ── GLOBAL STYLES ──────────────────────────────────────────────── */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  display: flex; /* Needed for overall structure potentially */
+  flex-direction: column;
+  /* align-items: center; -- Let specific layouts handle centering */
+  background-color: #f4f4f4;
+  margin: 0;
+  min-height: 100vh;
+  box-sizing: border-box;
+  color: #333;
+}
+
+/* Apply box-sizing globally */
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+/* Keep H1 styling very basic - Header component styles it */
+h1 {
+  margin: 0; /* Remove default margins */
+  /* Font size/weight handled by Header component */
+}
+
+/* Global focus outline */
+*:focus-visible {
+    outline: 2px solid var(--highlight-outline, #007bff);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+
+/* ── GLOBAL ANIMATIONS ──────────────────────────────── */
+/* Keep feedback flash here as classes applied directly to TD in Grid */
+@keyframes feedback-flash {
+  0%, 100% {
+    box-shadow: none;
+    transform: scale(1); /* Ensure it returns to normal scale */
+    z-index: 2; /* Keep z-index consistent */
+  }
+  50% {
+    box-shadow: 0 0 0 3px var(--feedback-color), inset 0 0 10px var(--feedback-color);
+    transform: scale(1.05); /* Add a subtle pop effect */
+    z-index: 3; /* Slightly higher during pop */
+  }
+}
+
+
+/* --- GLOBAL RESPONSIVE ADJUSTMENTS --- */
+@media (max-width: 768px) {
+    :root { --cell-size: 50px; --cell-height: 35px; }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --panel-width: 260px; /* Affects Modal max-width if used */
+        --cell-size: 40px;
+        --cell-height: 30px;
+    }
+    body { font-size: 15px; /* Slightly smaller base font */ }
+}
+
+/* --- Body Classes --- */
+/* Components will use :global(body.class-name) to target these */
+/* body.items-visible {} */
+/* body.category-colors-visible {} */
