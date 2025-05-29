@@ -17,5 +17,21 @@
       "sizes": "512x512",
       "type": "image/png"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Game",
+      "short_name": "New Game",
+      "description": "Start a new memorization game",
+      "url": "/?action=newGame",
+      "icons": [{ "src": "favicon.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Periodic Table Challenge",
+      "short_name": "Periodic Table",
+      "description": "Practice the Periodic Table",
+      "url": "/?datasetId=periodic-table-v1",
+      "icons": [{ "src": "favicon.png", "sizes": "192x192", "type": "image/png" }]
+    }
   ]
 }

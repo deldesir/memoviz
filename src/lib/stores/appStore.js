@@ -192,6 +192,28 @@ if (browser) {
         if (value.recallDuration !== oldValue?.recallDuration) { persistSettings(); }
         previousGameState = value;
     });
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('message', event => {
+            if (event.data && event.data.type === 'SW_UPDATED') {
+                console.log('appStore: Received SW_UPDATED message from service worker.');
+                showNotification(
+                    'App has been updated. Refresh for the latest version.', 
+                    'info', // type
+                    0,      // duration 0 for persistent
+                    [       // actions array
+                        {
+                            label: 'Refresh',
+                            action: () => {
+                                console.log('appStore: User clicked refresh on SW_UPDATED notification.');
+                                window.location.reload();
+                            }
+                        }
+                    ]
+                );
+            }
+        });
+    }
 }
 
 // --- Data & UI Helper Functions ---
