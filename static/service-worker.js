@@ -1,7 +1,7 @@
-const APP_SHELL_CACHE = 'app-shell-cache-v4';
-const STATIC_ASSETS_CACHE = 'static-assets-cache-v4';
-const CATALOG_CACHE = 'catalog-cache-v4';
-const DATASETS_CACHE = 'datasets-cache-v4'; // Cache for datasets
+const APP_SHELL_CACHE = 'app-shell-cache-v5';
+const STATIC_ASSETS_CACHE = 'static-assets-cache-v5';
+const CATALOG_CACHE = 'catalog-cache-v5';
+const DATASETS_CACHE = 'datasets-cache-v5'; // Cache for datasets
 
 const ALL_CACHES = [
   APP_SHELL_CACHE,
@@ -43,7 +43,7 @@ self.addEventListener('install', event => {
         return cache.addAll(CATALOG_FILES);
       }),
       // Aggressively cache manifest and favicon as a separate step
-      caches.open(STATIC_ASSETS_CACHE).then(cache => { // STATIC_ASSETS_CACHE is now v4
+      caches.open(STATIC_ASSETS_CACHE).then(cache => { // STATIC_ASSETS_CACHE is now v5
         console.log('Service Worker: Aggressively caching manifest and favicon.');
         return cache.add('/manifest.json')
           .then(() => cache.add('/favicon.png'))
@@ -54,7 +54,7 @@ self.addEventListener('install', event => {
           });
       }),
       // Pre-cache all datasets from catalog.json, sourcing catalog.json from its cache
-      caches.open(CATALOG_CACHE) // Open the cache for catalog.json (now v4)
+      caches.open(CATALOG_CACHE) // Open the cache for catalog.json (now v5)
         .then(catalogCache => {
           return catalogCache.match('/catalog.json')
             .then(response => {
@@ -164,35 +164,52 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       if (cachedResponse) {
-        // console.log('Service Worker: Serving from cache v4:', event.request.url);
+        // console.log('Service Worker: Serving from cache v5:', event.request.url);
         return cachedResponse;
       }
-      // console.log('Service Worker: Fetching from network v4:', event.request.url);
+      // console.log('Service Worker: Fetching from network v5:', event.request.url);
       return fetch(event.request).then(networkResponse => {
         // If it's a SvelteKit generated asset (typically under /_app/) or other important root paths, cache it dynamically.
         if ((requestUrl.pathname.startsWith('/_app/') || requestUrl.pathname === '/') &&
             networkResponse && networkResponse.status === 200 && event.request.method === 'GET') {
-          // If it's the root path or an _app asset, use APP_SHELL_CACHE.
-          // Otherwise, for any other unforeseen static assets that might be caught here,
-          // STATIC_ASSETS_CACHE could be a fallback, though ideally all static assets are predefined.
-          const cacheToUse = (requestUrl.pathname.startsWith('/_app/') || requestUrl.pathname === '/') 
-                             ? APP_SHELL_CACHE 
-                             : STATIC_ASSETS_CACHE; // Fallback, though less likely to be hit by non-_app non-/ paths
-          console.log(`Service Worker: Dynamically caching ${requestUrl.pathname} into ${cacheToUse}`); // This is a v4 cache name now
+          
+          const assetUrl = requestUrl.pathname;
+          const cacheToUse = (assetUrl.startsWith('/_app/') || assetUrl === '/') 
+                             ? APP_SHELL_CACHE  // APP_SHELL_CACHE is v5
+                             : STATIC_ASSETS_CACHE; // STATIC_ASSETS_CACHE is v5
+          
+          console.log(`Service Worker: Attempting to dynamically cache ${assetUrl} into ${cacheToUse}`);
+          
           return caches.open(cacheToUse).then(cache => {
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
+            return cache.put(event.request, networkResponse.clone())
+              .then(() => {
+                console.log(`Service Worker: Successfully dynamically cached ${assetUrl}`);
+                return networkResponse; // Return the original network response after successful cache
+              })
+              .catch(putError => {
+                console.error(`Service Worker: Failed to dynamically cache ${assetUrl}. Error:`, putError);
+                // Still return the original network response even if caching failed,
+                // as the resource was successfully fetched.
+                return networkResponse; 
+              });
+          }).catch(openError => {
+              console.error(`Service Worker: Failed to open cache ${cacheToUse} for ${assetUrl}. Error:`, openError);
+              return networkResponse; // Return network response if cache open fails
           });
         }
         return networkResponse;
       }).catch(error => {
-          console.error('Service Worker: Error fetching resource:', error, event.request.url);
+          const reqUrl = event.request.url;
+          console.error(`Service Worker: Network fetch failed for: ${reqUrl}. Error:`, error);
+          if (reqUrl.includes('/_app/') && reqUrl.endsWith('.js')) {
+              console.warn(`Service Worker: A critical JS asset (${reqUrl}) failed to load from network. Offline functionality might be impaired if not cached.`);
+          }
           // Fallback for offline navigation requests to the main app shell.
           if (event.request.mode === 'navigate') {
-            // console.log('Service Worker: Serving fallback shell for navigation error.');
+            console.log(`Service Worker: Serving fallback shell ('/') for failed navigation to ${reqUrl}.`);
             return caches.match('/');
           }
-          // For other types of failed requests, just let the error propagate.
+          // For other types of failed requests, just let the error propagate (or return a more generic offline response if desired)
       });
     })
   );

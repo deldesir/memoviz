@@ -85,7 +85,15 @@ function loadSettingsFromStorage() {
     try { return saved ? JSON.parse(saved) : {}; }
         catch (e) { console.error("Error parsing saved settings", e); return {}; }
 }
-const initialSettings = loadSettingsFromStorage();
+// const initialSettings = loadSettingsFromStorage(); // Original line
+let initialSettings = {}; // Default to empty object
+try {
+    initialSettings = loadSettingsFromStorage();
+    console.log("appStore: Initial settings loaded:", initialSettings);
+} catch (e) {
+    console.error("appStore: Error in loadSettingsFromStorage():", e);
+    // initialSettings remains {}
+}
 
 // --- Catalog Ready Promise ---
 let resolveCatalogReady;
@@ -646,6 +654,7 @@ function persistData(dataToSave) {
 
 /** Fetch and load the catalog file */
 export async function loadCatalog() {
+    console.log("appStore: loadCatalog() called");
     if (!browser) {
         if (resolveCatalogReady) resolveCatalogReady(); // Resolve immediately if not in browser
         return;
@@ -704,7 +713,8 @@ export async function loadSpecificDataset(/** @type {string | null} */ datasetId
 
     await catalogReady; // Wait for catalog to be processed before trying to access it
 
-    console.log(`Attempting to load dataset ID: ${datasetId}`);
+    console.log(`appStore: loadSpecificDataset() called for datasetId: ${datasetId}`);
+    // console.log(`Attempting to load dataset ID: ${datasetId}`); // Original log, now more specific
      stopCurrentGameAction();
      rawData.set(undefined); gridDimensions.set({ rows: 0, cols: 0 }); categories.set({});
 
@@ -762,8 +772,9 @@ export async function loadSpecificDataset(/** @type {string | null} */ datasetId
 
 /** Initial data loading action (only loads last selected dataset) */
 export async function loadGridData() {
+    console.log("appStore: loadGridData() called");
     if (!browser) return;
-    console.log("Initial load check: Attempting to load last selected dataset...");
+    // console.log("Initial load check: Attempting to load last selected dataset..."); // Original log
     const lastSelectedId = initialSettings.selectedDatasetId || null;
 
     if (lastSelectedId === USER_DATASET_ID) {
@@ -808,6 +819,7 @@ export async function loadGridData() {
 
 /** Action to load data from user file. */
 export async function loadFileDataAction(/** @type {File} */ file) {
+    console.log(`appStore: loadFileDataAction() called for file: ${file ? file.name : 'no file'}`);
     if (!browser) return false;
     if (!file) { showNotification('No file provided.', 'error'); return false; }
     stopCurrentGameAction();
