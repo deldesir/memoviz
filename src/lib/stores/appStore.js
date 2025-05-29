@@ -1,6 +1,12 @@
 import { writable, get, derived } from 'svelte/store';
 import { browser } from '$app/environment';
 import { showNotification } from '$lib/stores/notificationStore.js';
+import {
+    USER_DATASET_ID,
+    saveUserDataset,
+    loadUserDataset,
+    deleteUserDataset
+} from '$lib/utils/indexedDB.js';
 
 // --- JSDoc Type Definitions ---
 
@@ -477,23 +483,41 @@ export function resetSettingsAction() {
     // Note: persistSettings() will be called automatically by store subscriptions
 }
 
-/** Clears saved dataset from localStorage and reloads default */
+/** Clears saved user dataset from IndexedDB and potentially unloads it */
 export async function clearSavedDataAction() {
-    console.log("Action: clearSavedDataAction");
+    // This function is now focused on deleting the user's custom dataset from IndexedDB.
+    // The STORAGE_KEY_DATA in localStorage for dataset *content* is deprecated.
+    // User-uploaded files go to IndexedDB. Catalog files are handled by Service Worker cache.
+    console.log("Action: clearSavedDataAction - User custom dataset");
     if (!browser) return;
 
-    // Stop any game first
     stopCurrentGameAction();
 
     try {
-        localStorage.removeItem(STORAGE_KEY_DATA);
-        showNotification("Cleared saved dataset from storage.", "info", 2000);
-        // Trigger loading default data again
-        await loadGridData(); // loadGridData handles setting rawData etc.
+        await deleteUserDataset(); // Deletes from IndexedDB
+        showNotification("Cleared your custom uploaded dataset from browser storage.", "info", 3000);
+
+        // If the currently active dataset was the one stored in IndexedDB, unload it from UI.
+        if (get(selectedDatasetId) === USER_DATASET_ID) {
+            console.log("Unloading currently active custom dataset.");
+            unloadDatasetAction(); // This also calls persistSettings after clearing selectedDatasetId
+        } else {
+            // If another dataset (e.g., from catalog) was active, no need to unload UI,
+            // but ensure settings are persisted if they were somehow changed.
+            persistSettings();
+        }
+        
+        // For thoroughness, explicitly remove the old localStorage key if it exists.
+        // This helps clean up for users who might have old data.
+        if (browser) {
+            localStorage.removeItem(STORAGE_KEY_DATA);
+            console.log("Old localStorage key 'gridData_v2' (if existed) has been removed for cleanup.");
+        }
+
     } catch (err) {
-        console.error("Error clearing saved data:", err);
+        console.error("Error clearing user dataset from IndexedDB or old localStorage:", err);
         const message = (err instanceof Error) ? err.message : "Unknown error.";
-        showNotification(`Failed to clear data: ${message}`, 'error', 4000);
+        showNotification(`Failed to clear custom dataset: ${message}`, 'error', 4000);
     }
 }
 
@@ -697,7 +721,7 @@ export async function loadSpecificDataset(/** @type {string | null} */ datasetId
          currentForm.set(get(currentForm) ?? Math.min(INITIAL_CELL_FORM_INDEX, jsonData.meta.forms.length - 1)); // Keep existing form if possible
          selectedDatasetId.set(datasetId);
         console.log(`Dataset ${datasetId} loaded successfully.`);
-         persistData(jsonData); // Save current data content
+         // persistData(jsonData); // Removed: Service worker handles caching of cataloged datasets
          persistSettings(); // Save selected ID and potentially updated lang/form
          // Use correct language for notification
          const lang = get(currentLang);
@@ -721,67 +745,101 @@ export async function loadSpecificDataset(/** @type {string | null} */ datasetId
 export async function loadGridData() {
     if (!browser) return;
     console.log("Initial load check: Attempting to load last selected dataset...");
-    // Read ID directly from setting loaded at startup
     const lastSelectedId = initialSettings.selectedDatasetId || null;
 
-    if (lastSelectedId) {
-        console.log(`Found last selected dataset ID: ${lastSelectedId}. Loading...`);
-        // Need catalog loaded FIRST to find filepath, ensure loadCatalog runs before this potentially
-        // Revised strategy: Call loadCatalog, THEN call this or have this await catalog?
-        // Simpler: loadSpecificDataset will read catalog store, assuming loadCatalog called in parallel in onMount
-        await loadSpecificDataset(lastSelectedId);
-    } else {
-        console.log("No dataset selected previously. Waiting for user selection.");
+    if (lastSelectedId === USER_DATASET_ID) {
+        console.log("Attempting to load user custom dataset from IndexedDB...");
+        try {
+            const userDbData = await loadUserDataset();
+            if (userDbData) {
+                console.log("User custom dataset loaded from IndexedDB.");
+                rawData.set(userDbData);
+                gridDimensions.set({ rows: userDbData.meta.rows, cols: userDbData.meta.cols });
+                categories.set(userDbData.meta.categories || {});
+                currentLang.set(get(currentLang) || userDbData.meta.defaultLanguage || 'en');
+                currentForm.set(get(currentForm) ?? Math.min(INITIAL_CELL_FORM_INDEX, userDbData.meta.forms.length - 1));
+                // selectedDatasetId is already USER_DATASET_ID from initialSettings
+                showNotification("Loaded custom dataset from your browser storage.", "success", 3000);
+                return; // Exit early as we've loaded the custom dataset
+            } else {
+                console.warn("User custom dataset ID was set, but no data found in IndexedDB. Clearing selection.");
+                selectedDatasetId.set(null); 
+                persistSettings(); // Save the cleared selection
+            }
+        } catch (err) {
+            console.error("Error loading user dataset from IndexedDB:", err);
+            showNotification("Could not load your custom dataset. Please try uploading again.", "error", 4000);
+            selectedDatasetId.set(null); // Clear selection on error
+            persistSettings();
+        }
+    }
+
+    // If not user custom dataset, or if it failed to load, try catalog datasets
+    // This part will execute if lastSelectedId was not USER_DATASET_ID, or if USER_DATASET_ID failed to load and was reset to null.
+    const currentEffectiveSelectedId = get(selectedDatasetId); // Re-check in case it was nulled above
+
+    if (currentEffectiveSelectedId && currentEffectiveSelectedId !== USER_DATASET_ID) {
+        console.log(`Found last selected catalog dataset ID: ${currentEffectiveSelectedId}. Loading...`);
+        await loadSpecificDataset(currentEffectiveSelectedId);
+    } else if (!currentEffectiveSelectedId) { 
+        console.log("No dataset selected previously, or custom/catalog dataset failed to load. Waiting for user selection or showing catalog.");
         rawData.set(null); gridDimensions.set({ rows: 0, cols: 0 }); categories.set({});
     }
 }
 
 /** Action to load data from user file. */
 export async function loadFileDataAction(/** @type {File} */ file) {
-    // ... (Implementation mostly unchanged, but ensure selectedDatasetId.set(null) happens) ...
     if (!browser) return false;
     if (!file) { showNotification('No file provided.', 'error'); return false; }
     stopCurrentGameAction();
     rawData.set(undefined); gridDimensions.set({ rows: 0, cols: 0 }); categories.set({});
     showNotification(`Loading file: ${file.name}...`, 'info', 2000);
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => { // Added async here
         const reader = new FileReader();
-        reader.onload = () => {
+        reader.onload = async () => { // Added async here
             try {
                 const fileContent = reader.result;
                 if (typeof fileContent !== 'string') { throw new Error("Could not read file as text."); }
                 const parsed = JSON.parse(fileContent);
                 validateData(parsed);
+
+                await saveUserDataset(parsed); // Store in IndexedDB
+                console.log("User dataset saved to IndexedDB.");
+
                 rawData.set(parsed);
                 gridDimensions.set({ rows: parsed.meta.rows, cols: parsed.meta.cols });
                 categories.set(parsed.meta.categories || {});
                 currentLang.set(parsed.meta.defaultLanguage || 'en');
                 currentForm.set(Math.min(INITIAL_CELL_FORM_INDEX, parsed.meta.forms.length - 1));
-                persistData(parsed);
-                // --- Clear selected dataset ID for custom file ---
-                selectedDatasetId.set(null);
-                persistSettings(); // Save cleared selection
+                
+                selectedDatasetId.set(USER_DATASET_ID); // Set ID for user's custom data
+                persistSettings(); // Save selection of USER_DATASET_ID
+
                 itemsVisible.set(false); // Hide names automatically
                 useCategoryColors.set(true); // Show category colors automatically
                 setModeAction('explore'); // Switch back to explore mode
                 clearHighlightState(); // Clear any previous highlight
 
-                showNotification(`Successfully loaded: ${file.name}`, 'success', 3000);
+                showNotification(`Successfully loaded and saved: ${file.name}`, 'success', 3000);
                 resolve(true); // Indicate success
 
             } catch (err) {
                 console.error(`Error processing file ${file.name}:`, err);
                 rawData.set(null); // Ensure data is null on error
                 gridDimensions.set({ rows: 0, cols: 0 }); categories.set({});
+                selectedDatasetId.set(null); // Clear selection on error
+                persistSettings();
                 const message = (err instanceof Error) ? err.message : "Unknown error during processing.";
-                showNotification(`Error loading ${file.name}: ${message}`, 'error'); // Use default duration
+                showNotification(`Error loading ${file.name}: ${message}`, 'error');
                 resolve(false); // Indicate failure
             }
         };
         reader.onerror = () => {
             console.error("FileReader error:", reader.error);
             rawData.set(null); gridDimensions.set({ rows: 0, cols: 0 }); categories.set({});
-            showNotification(`Error reading file: ${reader.error?.message || 'Unknown read error'}`, 'error'); // Use default duration
+            selectedDatasetId.set(null); // Clear selection on error
+            persistSettings();
+            showNotification(`Error reading file: ${reader.error?.message || 'Unknown read error'}`, 'error');
             resolve(false); // Indicate failure
         };
         reader.readAsText(file); // Start reading
