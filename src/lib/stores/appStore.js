@@ -89,7 +89,7 @@ function loadSettingsFromStorage() {
 let initialSettings = {}; // Default to empty object
 try {
     initialSettings = loadSettingsFromStorage();
-    console.log("appStore: Initial settings loaded:", initialSettings);
+    // console.log("appStore: Initial settings loaded:", initialSettings);
 } catch (e) {
     console.error("appStore: Error in loadSettingsFromStorage():", e);
     // initialSettings remains {}
@@ -223,13 +223,13 @@ if (browser) {
         isOnline.set(navigator.onLine); // Set initial status
 
         window.addEventListener('online', () => {
-            console.log('appStore: Browser reported online.');
+            // console.log('appStore: Browser reported online.');
             isOnline.set(true);
             showNotification("You are back online.", "success", 3000);
         });
 
         window.addEventListener('offline', () => {
-            console.log('appStore: Browser reported offline.');
+            // console.log('appStore: Browser reported offline.');
             isOnline.set(false);
             showNotification("You are now offline. Some features may be limited.", "warning", 5000);
         });
@@ -287,11 +287,11 @@ let feedbackTimer = null;
 export function applyFeedback(coord, type) {
     if (!browser) return;
     // Log added previously to debug missing feedback
-    console.log(`Applying feedback: ${type} for ${coord}`);
+    // console.log(`Applying feedback: ${type} for ${coord}`);
     if (feedbackTimer !== null) clearTimeout(feedbackTimer);
     feedback.set({ coord, type });
     feedbackTimer = window.setTimeout(() => {
-        console.log(`Clearing feedback for ${coord}`); // Log added previously
+        // console.log(`Clearing feedback for ${coord}`); // Log added previously
         feedback.set({ coord: null, type: null });
         feedbackTimer = null;
     }, FEEDBACK_DURATION);
@@ -344,7 +344,7 @@ export function clearExploreInput() {
     // Check if game is active - maybe allow clearing input but not highlight if active? No, keep simple.
     if (get(gameState).isActive) return;
 
-    console.log("Action: clearExploreInput");
+    // console.log("Action: clearExploreInput");
     clearExploreInputTimer();
     exploreInputCoords.set('');
     clearHighlightState();
@@ -402,20 +402,20 @@ function _getRandomItem() {
 
 /** Stop any active game and reset related state */
 export function stopCurrentGameAction() {
-    console.log("Action: stopCurrentGameAction");
+    // console.log("Action: stopCurrentGameAction");
     const gs = get(gameState); if (!gs.isActive) return;
     if (gs.timerId !== null && browser) { clearTimeout(gs.timerId); }
     // Ensure state reset matches GameState type
     gameState.update(s => ({ ...s, isActive: false, currentPrompt: null, timerId: null, isItemRevealed: true }));
     clearHighlightState(); feedback.set({ coord: null, type: null });
-    console.log("Game stopped.");
+    // console.log("Game stopped.");
 }
 
 /** Set the application mode
  * @param {'explore' | 'guess-cell' | 'timed-recall'} newMode
  */
 export function setModeAction(newMode) {
-    console.log(`Action: setModeAction to ${newMode}`);
+    // console.log(`Action: setModeAction to ${newMode}`);
     const currentGs = get(gameState);
     if (currentGs.mode !== newMode || currentGs.isActive) {
         stopCurrentGameAction();
@@ -438,7 +438,7 @@ export function nextGuessCellPromptAction() {
     // Ensure promptItem matches GamePrompt type
     gameState.update(s => ({ ...s, currentPrompt: promptItem }));
     clearHighlightState();
-    console.log("Store updated with new prompt:", promptItem.coord);
+    // console.log("Store updated with new prompt:", promptItem.coord);
 }
 
 /** Action called by timer to reveal item in Timed Recall */
@@ -451,7 +451,7 @@ function revealCurrentItemAction() {
          gameState.update(s => ({ ...s, timerId: null })); // Ensure timer ID is nullified
          return;
     }
-    console.log("Action: revealCurrentItemAction for", gs.currentPrompt?.coord);
+    // console.log("Action: revealCurrentItemAction for", gs.currentPrompt?.coord);
     gameState.update(s => ({ ...s, isItemRevealed: true })); // Reveal item
 
     // Set timer for the *next* loop iteration (pause after reveal)
@@ -486,7 +486,7 @@ export function startTimedRecallLoopAction() {
     let revealTimerId = null; // Ensure type matches GameState.timerId
     if (browser) {
         const delayMilliseconds = gs.recallDuration * 1000;
-        console.log(`Timed Recall: Hiding ${promptItem.coord}, starting ${delayMilliseconds}ms timer.`);
+        // console.log(`Timed Recall: Hiding ${promptItem.coord}, starting ${delayMilliseconds}ms timer.`);
         revealTimerId = window.setTimeout(revealCurrentItemAction, delayMilliseconds);
     }
     // Update state: set prompt, mark hidden, store timer ID
@@ -497,9 +497,9 @@ export function startTimedRecallLoopAction() {
 export function startGameAction() {
     const currentMode = get(gameState).mode; const dataLoaded = !!get(rawData);
     if (!dataLoaded || currentMode === 'explore' || get(gameState).isActive) { console.warn("Start game ignored."); return; }
-    console.log(`Action: startGameAction for mode ${currentMode}`);
+    // console.log(`Action: startGameAction for mode ${currentMode}`);
     // Reset state, ensuring type compatibility
-    gameState.update(gs => ({ ...gs, isActive: true, score: 0, currentPrompt: null, timerId: null, isItemRevealed: true }));
+    gameState.update(gs => ({ ...s, isActive: true, score: 0, currentPrompt: null, timerId: null, isItemRevealed: true }));
     clearHighlightState(); feedback.set({ coord: null, type: null });
     // Trigger the first step of the game loop/prompt
     if (currentMode === 'guess-cell') { nextGuessCellPromptAction(); }
@@ -514,19 +514,19 @@ export function selectAllCategories() {
     const allCategoryIds = Object.keys(get(categories) || {});
     if (allCategoryIds.length > 0) {
         selectedCategoryIds.set(allCategoryIds);
-        console.log("Selected all categories for filtering.");
+        // console.log("Selected all categories for filtering.");
     }
 }
 
 /** Action to deselect all category IDs */
 export function deselectAllCategories() {
     selectedCategoryIds.set([]);
-    console.log("Deselected all categories for filtering.");
+    // console.log("Deselected all categories for filtering.");
 }
 
 /** Resets UI settings stores to their application defaults */
 export function resetSettingsAction() {
-    console.log("Action: resetSettingsAction");
+    // console.log("Action: resetSettingsAction");
     // Determine defaults (could also read from initial default dataset meta if needed)
     const defaultLang = get(rawData)?.meta?.defaultLanguage || 'en';
     const defaultForm = INITIAL_CELL_FORM_INDEX; // Use constant
@@ -549,7 +549,7 @@ export async function clearSavedDataAction() {
     // This function is now focused on deleting the user's custom dataset from IndexedDB.
     // The STORAGE_KEY_DATA in localStorage for dataset *content* is deprecated.
     // User-uploaded files go to IndexedDB. Catalog files are handled by Service Worker cache.
-    console.log("Action: clearSavedDataAction - User custom dataset");
+    // console.log("Action: clearSavedDataAction - User custom dataset");
     if (!browser) return;
 
     stopCurrentGameAction();
@@ -584,7 +584,7 @@ export async function clearSavedDataAction() {
 
 /** Unloads current dataset and resets related state to show catalog selector */
 export function unloadDatasetAction() {
-    console.log("Action: unloadDatasetAction");
+    // console.log("Action: unloadDatasetAction");
     stopCurrentGameAction(); // Stop any active game
     rawData.set(null); // Clear main data
     gridDimensions.set({ rows: 0, cols: 0 }); // Reset dimensions
@@ -604,7 +604,7 @@ export function unloadDatasetAction() {
 
 /** Validate data structure */
 function validateData(/** @type {any} */ d) {
-    console.log("Validating data structure...");
+    // console.log("Validating data structure...");
     try {
         if (typeof d !== 'object' || d === null) throw new Error('Data must be an object.');
         if (!d.meta || typeof d.meta !== 'object') throw new Error("Missing or invalid 'meta' object.");
@@ -674,7 +674,7 @@ function validateData(/** @type {any} */ d) {
             for (const langCode in item) { if (langCode === 'category') continue; hasLanguageData = true; if (!meta.languages[langCode]) throw new Error(`Item '${coord}' uses unknown language '${langCode}'.`); if (!Array.isArray(item[langCode]) || item[langCode].length !== numForms) { throw new Error(`Item '${coord}' lang '${langCode}' data array length mismatch (expected ${numForms}, got ${item[langCode]?.length}).`); } }
             if (!hasLanguageData && item !== null) { throw new Error(`Item '${coord}' has no language data.`); }
         }
-        console.log("Data validation passed for dataset: ${meta.datasetId}.");
+        // console.log("Data validation passed for dataset: ${meta.datasetId}.");
         return true;
     } catch (error) {
         console.error("Data validation error:", error);
@@ -688,7 +688,7 @@ function validateData(/** @type {any} */ d) {
  */
 function persistData(dataToSave) {
     if (!browser || !dataToSave) { return; }
-    try { localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(dataToSave)); console.log("Data persisted."); }
+    try { localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(dataToSave)); /* console.log("Data persisted."); */ }
     catch (err) {
         console.error("Error persisting data:", err);
         let message = 'Could not save data to local storage.';
@@ -701,12 +701,12 @@ function persistData(dataToSave) {
 
 /** Fetch and load the catalog file */
 export async function loadCatalog() {
-    console.log("appStore: loadCatalog() called");
+    // console.log("appStore: loadCatalog() called");
     if (!browser) {
         if (resolveCatalogReady) resolveCatalogReady(); // Resolve immediately if not in browser
         return;
     }
-    console.log("Fetching catalog.json...");
+    // console.log("Fetching catalog.json...");
     try {
         const response = await fetch('/catalog.json'); // Assumes catalog is in /static/catalog.json
         if (!response.ok) { throw new Error(`HTTP error! ${response.status}`); }
@@ -760,7 +760,7 @@ export async function loadSpecificDataset(/** @type {string | null} */ datasetId
 
     await catalogReady; // Wait for catalog to be processed before trying to access it
 
-    console.log(`appStore: loadSpecificDataset() called for datasetId: ${datasetId}`);
+    // console.log(`appStore: loadSpecificDataset() called for datasetId: ${datasetId}`);
     // console.log(`Attempting to load dataset ID: ${datasetId}`); // Original log, now more specific
      stopCurrentGameAction();
      rawData.set(undefined); gridDimensions.set({ rows: 0, cols: 0 }); categories.set({});
@@ -776,7 +776,7 @@ export async function loadSpecificDataset(/** @type {string | null} */ datasetId
         return false;
     }
 
-    console.log(`Workspaceing dataset from: ${datasetInfo.filePath}`);
+    // console.log(`Workspaceing dataset from: ${datasetInfo.filePath}`);
     try {
         const response = await fetch(datasetInfo.filePath);
         if (!response.ok) { throw new Error(`HTTP error! ${response.status} fetching ${datasetInfo.filePath}`); }
@@ -819,7 +819,7 @@ export async function loadSpecificDataset(/** @type {string | null} */ datasetId
 
 /** Initial data loading action (only loads last selected dataset) */
 export async function loadGridData() {
-    console.log("appStore: loadGridData() called");
+    // console.log("appStore: loadGridData() called");
     if (!browser) return;
     // console.log("Initial load check: Attempting to load last selected dataset..."); // Original log
     const lastSelectedId = initialSettings.selectedDatasetId || null;
@@ -866,7 +866,7 @@ export async function loadGridData() {
 
 /** Action to load data from user file. */
 export async function loadFileDataAction(/** @type {File} */ file) {
-    console.log(`appStore: loadFileDataAction() called for file: ${file ? file.name : 'no file'}`);
+    // console.log(`appStore: loadFileDataAction() called for file: ${file ? file.name : 'no file'}`);
     if (!browser) return false;
     if (!file) { showNotification('No file provided.', 'error'); return false; }
     stopCurrentGameAction();

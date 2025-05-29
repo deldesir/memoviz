@@ -259,12 +259,12 @@ self.addEventListener('fetch', event => {
           // For _app assets, always use APP_SHELL_CACHE as they are core to the app shell
           const cacheToUse = APP_SHELL_CACHE; // APP_SHELL_CACHE is v8
           
-          console.log(`Service Worker (v8): Attempting to dynamically cache ${assetUrl} into ${cacheToUse}`);
+          // console.log(`Service Worker (v8): Attempting to dynamically cache ${assetUrl} into ${cacheToUse}`); // Too verbose
           
           return caches.open(cacheToUse).then(cache => {
             return cache.put(event.request, networkResponse.clone())
               .then(() => {
-                console.log(`Service Worker (v8): Successfully dynamically cached ${assetUrl}`);
+                // console.log(`Service Worker (v8): Successfully dynamically cached ${assetUrl}`); // Too verbose
                 return networkResponse; // Return the original network response after successful cache
               })
               .catch(putError => {
