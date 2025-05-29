@@ -24,10 +24,15 @@ let timeoutId = null;
  * Shows a notification message.
  * @param {string} message - The message to display.
  * @param {NotificationType} [type='info'] - The type of notification.
- * @param {number} [duration=4000] - How long to show in ms (0 for persistent).
+ * @param {number} [duration] - How long to show in ms. Defaults to 4000ms for non-errors, 0 (persistent) for errors.
  */
-export function showNotification(message, type = 'info', duration = 4000) {
+export function showNotification(message, type = 'info', duration) {
     if (!browser) return; // Don't show notifications during SSR
+
+    // Default duration logic
+    if (duration === undefined) {
+        duration = (type === 'error') ? 0 : 4000; // Errors are persistent by default
+    }
 
     if (timeoutId !== null) {
         clearTimeout(timeoutId); // Clear previous timer

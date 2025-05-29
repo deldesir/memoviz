@@ -41,5 +41,10 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transform: scale(1.1);
   }
+  .gear-btn:active {
+    transform: scale(1.05) translateY(1px); /* Slightly smaller scale than hover, and press down */
+    filter: brightness(0.9); /* Darken slightly */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Reduce shadow to enhance press effect */
+  }
   /* Uses global :focus-visible from app.css */
 </style>
