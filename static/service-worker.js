@@ -1,7 +1,7 @@
-const APP_SHELL_CACHE = 'app-shell-cache-v5';
-const STATIC_ASSETS_CACHE = 'static-assets-cache-v5';
-const CATALOG_CACHE = 'catalog-cache-v5';
-const DATASETS_CACHE = 'datasets-cache-v5'; // Cache for datasets
+const APP_SHELL_CACHE = 'app-shell-cache-v6';
+const STATIC_ASSETS_CACHE = 'static-assets-cache-v6';
+const CATALOG_CACHE = 'catalog-cache-v6';
+const DATASETS_CACHE = 'datasets-cache-v6'; // Cache for datasets
 
 const ALL_CACHES = [
   APP_SHELL_CACHE,
@@ -43,7 +43,7 @@ self.addEventListener('install', event => {
         return cache.addAll(CATALOG_FILES);
       }),
       // Aggressively cache manifest and favicon as a separate step
-      caches.open(STATIC_ASSETS_CACHE).then(cache => { // STATIC_ASSETS_CACHE is now v5
+      caches.open(STATIC_ASSETS_CACHE).then(cache => { // STATIC_ASSETS_CACHE is now v6
         console.log('Service Worker: Aggressively caching manifest and favicon.');
         return cache.add('/manifest.json')
           .then(() => cache.add('/favicon.png'))
@@ -54,7 +54,7 @@ self.addEventListener('install', event => {
           });
       }),
       // Pre-cache all datasets from catalog.json, sourcing catalog.json from its cache
-      caches.open(CATALOG_CACHE) // Open the cache for catalog.json (now v5)
+      caches.open(CATALOG_CACHE) // Open the cache for catalog.json (now v6)
         .then(catalogCache => {
           return catalogCache.match('/catalog.json')
             .then(response => {
@@ -160,53 +160,94 @@ self.addEventListener('fetch', event => {
     return; // Ensure no other fetch logic handles this
   }
 
-  // Strategy for other requests (app shell, static assets, catalog, SvelteKit chunks)
+  // NEW: Network-first, then cache for main page navigation ('/')
+  if (event.request.mode === 'navigate' && requestUrl.pathname === '/') {
+    console.log('Service Worker (v6): Handling navigation request for / (Network-first)');
+    event.respondWith(
+      fetch(event.request)
+        .then(networkResponse => {
+          // Check if we received a valid response
+          if (networkResponse && networkResponse.ok) {
+            console.log('Service Worker (v6): Fetched / from network. Caching and returning.');
+            const responseToCache = networkResponse.clone();
+            caches.open(APP_SHELL_CACHE) // APP_SHELL_CACHE is v6
+              .then(cache => {
+                cache.put(event.request, responseToCache); // Cache the new response for '/'
+              });
+            return networkResponse;
+          }
+          // If network fetch gives a non-ok response (e.g. 404, 500), treat as failure for this strategy
+          console.log(`Service Worker (v6): Network fetch for / failed with status: ${networkResponse.status}. Trying cache.`);
+          return caches.match(event.request)
+            .then(cachedResponse => {
+              return cachedResponse || caches.match('/'); // Fallback, should be same as event.request here
+            });
+        })
+        .catch(error => {
+          console.log('Service Worker (v6): Network fetch for / failed. Attempting to serve from cache. Error:', error);
+          return caches.match(event.request)
+            .then(cachedResponse => {
+              if (cachedResponse) {
+                return cachedResponse;
+              }
+              // If event.request was specifically for '/', this is another way to try it.
+              // This also handles the case where event.request might have had query params, but we just want the base page.
+              return caches.match('/'); 
+            });
+        })
+    );
+    return; // Ensure no other fetch logic handles this navigation request
+  }
+
+  // Existing Strategy for other requests (app shell, static assets, catalog, SvelteKit chunks)
+  // This will now handle non-'/' navigations (if any) and all other assets.
+  console.log(`Service Worker (v6): Handling other request (Cache-first): ${requestUrl.pathname}`);
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       if (cachedResponse) {
-        // console.log('Service Worker: Serving from cache v5:', event.request.url);
+        // console.log('Service Worker (v6): Serving from cache:', event.request.url);
         return cachedResponse;
       }
-      // console.log('Service Worker: Fetching from network v5:', event.request.url);
+      // console.log('Service Worker (v6): Fetching from network:', event.request.url);
       return fetch(event.request).then(networkResponse => {
-        // If it's a SvelteKit generated asset (typically under /_app/) or other important root paths, cache it dynamically.
-        if ((requestUrl.pathname.startsWith('/_app/') || requestUrl.pathname === '/') &&
+        // If it's a SvelteKit generated asset (typically under /_app/) cache it dynamically.
+        // '/' is handled by the network-first strategy above.
+        if (requestUrl.pathname.startsWith('/_app/') && // Removed '|| requestUrl.pathname === '/'
             networkResponse && networkResponse.status === 200 && event.request.method === 'GET') {
           
           const assetUrl = requestUrl.pathname;
-          const cacheToUse = (assetUrl.startsWith('/_app/') || assetUrl === '/') 
-                             ? APP_SHELL_CACHE  // APP_SHELL_CACHE is v5
-                             : STATIC_ASSETS_CACHE; // STATIC_ASSETS_CACHE is v5
+          // For _app assets, always use APP_SHELL_CACHE as they are core to the app shell
+          const cacheToUse = APP_SHELL_CACHE; // APP_SHELL_CACHE is v6
           
-          console.log(`Service Worker: Attempting to dynamically cache ${assetUrl} into ${cacheToUse}`);
+          console.log(`Service Worker (v6): Attempting to dynamically cache ${assetUrl} into ${cacheToUse}`);
           
           return caches.open(cacheToUse).then(cache => {
             return cache.put(event.request, networkResponse.clone())
               .then(() => {
-                console.log(`Service Worker: Successfully dynamically cached ${assetUrl}`);
+                console.log(`Service Worker (v6): Successfully dynamically cached ${assetUrl}`);
                 return networkResponse; // Return the original network response after successful cache
               })
               .catch(putError => {
-                console.error(`Service Worker: Failed to dynamically cache ${assetUrl}. Error:`, putError);
+                console.error(`Service Worker (v6): Failed to dynamically cache ${assetUrl}. Error:`, putError);
                 // Still return the original network response even if caching failed,
                 // as the resource was successfully fetched.
                 return networkResponse; 
               });
           }).catch(openError => {
-              console.error(`Service Worker: Failed to open cache ${cacheToUse} for ${assetUrl}. Error:`, openError);
+              console.error(`Service Worker (v6): Failed to open cache ${cacheToUse} for ${assetUrl}. Error:`, openError);
               return networkResponse; // Return network response if cache open fails
           });
         }
         return networkResponse;
       }).catch(error => {
           const reqUrl = event.request.url;
-          console.error(`Service Worker: Network fetch failed for: ${reqUrl}. Error:`, error);
+          console.error(`Service Worker (v6): Network fetch failed for other request: ${reqUrl}. Error:`, error);
           if (reqUrl.includes('/_app/') && reqUrl.endsWith('.js')) {
-              console.warn(`Service Worker: A critical JS asset (${reqUrl}) failed to load from network. Offline functionality might be impaired if not cached.`);
+              console.warn(`Service Worker (v6): A critical JS asset (${reqUrl}) failed to load from network. Offline functionality might be impaired if not cached.`);
           }
           // Fallback for offline navigation requests to the main app shell.
-          if (event.request.mode === 'navigate') {
-            console.log(`Service Worker: Serving fallback shell ('/') for failed navigation to ${reqUrl}.`);
+          if (event.request.mode === 'navigate') { // For any other navigation not caught by the '/' specific handler
+            console.log(`Service Worker (v6): Serving fallback shell ('/') for failed navigation to non-root page ${reqUrl}.`);
             return caches.match('/');
           }
           // For other types of failed requests, just let the error propagate (or return a more generic offline response if desired)
