@@ -144,7 +144,14 @@
       background-color: var(--cell-category-bg);
   }
 
-  td:hover { filter: brightness(95%); box-shadow: inset 0 0 5px rgba(0,0,0,0.1); }
+  td:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    /* filter: brightness(95%); /* Optionally keep or remove brightness filter */
+    /* Ensure z-index is high enough to see the shadow over adjacent cells if they don't also transform */
+    position: relative; /* Needed for z-index to apply if not already set */
+    z-index: 10;
+  }
   td:focus-visible { outline: 2px solid var(--highlight-outline); outline-offset: -2px; z-index: 5; }
 
   .item-name {

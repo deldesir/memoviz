@@ -709,7 +709,7 @@ export async function loadSpecificDataset(/** @type {string | null} */ datasetId
         console.error(`Error loading/validating dataset ${datasetId}:`, err);
         rawData.set(null); gridDimensions.set({ rows: 0, cols: 0 }); categories.set({});
         const message = (err instanceof Error) ? err.message : "Unknown load error.";
-        showNotification(`Failed to load dataset ${datasetId}: ${message}`, 'error', 5000);
+        showNotification(`Failed to load dataset ${datasetId}: ${message}`, 'error'); // Use default duration (persistent for errors)
         selectedDatasetId.set(null); // Clear selection on error
         persistSettings();
         return false; // Failure
@@ -774,14 +774,14 @@ export async function loadFileDataAction(/** @type {File} */ file) {
                 rawData.set(null); // Ensure data is null on error
                 gridDimensions.set({ rows: 0, cols: 0 }); categories.set({});
                 const message = (err instanceof Error) ? err.message : "Unknown error during processing.";
-                showNotification(`Error loading ${file.name}: ${message}`, 'error', 5000);
+                showNotification(`Error loading ${file.name}: ${message}`, 'error'); // Use default duration
                 resolve(false); // Indicate failure
             }
         };
         reader.onerror = () => {
             console.error("FileReader error:", reader.error);
             rawData.set(null); gridDimensions.set({ rows: 0, cols: 0 }); categories.set({});
-            showNotification(`Error reading file: ${reader.error?.message || 'Unknown read error'}`, 'error', 5000);
+            showNotification(`Error reading file: ${reader.error?.message || 'Unknown read error'}`, 'error'); // Use default duration
             resolve(false); // Indicate failure
         };
         reader.readAsText(file); // Start reading

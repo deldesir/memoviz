@@ -1,20 +1,88 @@
 <script lang="ts">
   import { fade, fly } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
+  import { onMount, onDestroy, tick } from 'svelte';
 
   export let isOpen = false;
 
+  let previouslyFocusedElement: HTMLElement | null = null;
+  let modalContentElement: HTMLDivElement | null = null; // Bind to modal-content div
+  let closeButtonElement: HTMLButtonElement | null = null; // Bind to close button
+
+  async function openModal() {
+    if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+      previouslyFocusedElement = document.activeElement;
+    }
+    // Wait for modal to be rendered and transitions to start
+    await tick();
+    if (modalContentElement) {
+        // Focus the modal container first, then decide on internal element
+        modalContentElement.focus(); 
+        // Attempt to focus the close button by default, or the first focusable item.
+        if (closeButtonElement) {
+            closeButtonElement.focus();
+        } else {
+            // Fallback: focus first focusable element in modal content
+            const firstFocusable = modalContentElement.querySelector(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            ) as HTMLElement | null;
+            firstFocusable?.focus();
+        }
+    }
+  }
+
   function requestClose() {
     isOpen = false;
+    if (previouslyFocusedElement) {
+      previouslyFocusedElement.focus();
+      previouslyFocusedElement = null;
+    }
   }
 
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
       requestClose();
+      return;
     }
-    if (event.key === 'Tab') {
-      // TODO: Implement focus trapping if desired for better a11y
+    if (event.key === 'Tab' && modalContentElement) {
+      const focusableElements = Array.from(
+        modalContentElement.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter(el => el instanceof HTMLElement && el.offsetParent !== null) as HTMLElement[]; // Check visibility
+
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      const currentElement = document.activeElement;
+
+      if (event.shiftKey) { // Shift + Tab
+        if (currentElement === firstElement || currentElement === modalContentElement /* allow tabbing from container itself */) {
+          lastElement.focus();
+          event.preventDefault();
+        }
+      } else { // Tab
+        if (currentElement === lastElement) {
+          firstElement.focus();
+          event.preventDefault();
+        }
+      }
+      // If currentElement is not within focusableElements (e.g. modalContentElement itself),
+      // and we're tabbing forward, focus the first element.
+      if (!focusableElements.includes(currentElement as HTMLElement) && !event.shiftKey) {
+        firstElement.focus();
+        event.preventDefault();
+      }
     }
+  }
+
+  // Reactive statement to handle modal opening
+  $: if (isOpen) {
+    openModal();
   }
 
   function handleBackdropClick(event: MouseEvent & { currentTarget: HTMLDivElement }) {
@@ -46,7 +114,8 @@
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
-      tabindex="-1"
+      tabindex="-1"  {# Make the modal content div programmatically focusable #}
+      bind:this={modalContentElement}
       transition:fly={{ duration: 300, y: -50, easing: quintOut }}
       on:keydown={handleKeydown}
     >
@@ -54,6 +123,7 @@
         type="button"
         class="close-button"
         aria-label="Close modal"
+        bind:this={closeButtonElement}
         on:click={requestClose}
       >&times;</button>
       <slot name="header"></slot>
