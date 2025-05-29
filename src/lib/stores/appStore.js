@@ -142,6 +142,9 @@ export const catalogList = writable([]);
 /** @type {import('svelte/store').Writable<string | null>} */ // Holds ID of selected dataset from catalog
 export const selectedDatasetId = writable(initialSettings.selectedDatasetId || null);
 
+// Online/Offline Status Store
+export const isOnline = writable(true); // Default to true, will be updated by browser events
+
 
 // --- Derived Stores ---
 /** Creates derived store of available categories {id, name} in current language */
@@ -213,6 +216,28 @@ if (browser) {
                 );
             }
         });
+    }
+
+    // Online/Offline Status Store Initialization
+    if ('onLine' in navigator) { // Check if navigator.onLine is supported
+        isOnline.set(navigator.onLine); // Set initial status
+
+        window.addEventListener('online', () => {
+            console.log('appStore: Browser reported online.');
+            isOnline.set(true);
+            showNotification("You are back online.", "success", 3000);
+        });
+
+        window.addEventListener('offline', () => {
+            console.log('appStore: Browser reported offline.');
+            isOnline.set(false);
+            showNotification("You are now offline. Some features may be limited.", "warning", 5000);
+        });
+    } else {
+        // Fallback for browsers that don't support navigator.onLine (rare)
+        // Assume online, or could try a fetch test, but for simplicity, assume online.
+        console.warn('appStore: navigator.onLine not supported, assuming online.');
+        isOnline.set(true);
     }
 }
 
