@@ -87,6 +87,12 @@ function loadSettingsFromStorage() {
 }
 const initialSettings = loadSettingsFromStorage();
 
+// --- Catalog Ready Promise ---
+let resolveCatalogReady;
+export const catalogReady = new Promise(resolve => {
+    resolveCatalogReady = resolve;
+});
+
 // --- Reactive Stores ---
 /** @type {import('svelte/store').Writable<RawGridData | null | undefined>} */
 export const rawData = writable(undefined);
@@ -640,7 +646,10 @@ function persistData(dataToSave) {
 
 /** Fetch and load the catalog file */
 export async function loadCatalog() {
-    if (!browser) return;
+    if (!browser) {
+        if (resolveCatalogReady) resolveCatalogReady(); // Resolve immediately if not in browser
+        return;
+    }
     console.log("Fetching catalog.json...");
     try {
         const response = await fetch('/catalog.json'); // Assumes catalog is in /static/catalog.json
@@ -677,13 +686,23 @@ export async function loadCatalog() {
         catalogList.set([]); // Set empty on error
         const message = (err instanceof Error) ? err.message : "Unknown error";
         showNotification(`Failed to load dataset catalog: ${message}`, 'error', 0); // Persistent
+    } finally {
+        if (resolveCatalogReady) resolveCatalogReady(); // Resolve regardless of success or failure
     }
 }
 
 /** Loads a specific dataset based on its ID from the catalog. */
 export async function loadSpecificDataset(/** @type {string | null} */ datasetId) {
-    if (!browser) return false;
-     if (!datasetId) { rawData.set(null); gridDimensions.set({rows:0, cols:0}); categories.set({}); return false; }
+    // Do not wait for catalog if datasetId is null or not in browser context
+    if (!browser) return false; 
+    if (!datasetId) { 
+        rawData.set(null); 
+        gridDimensions.set({rows:0, cols:0}); 
+        categories.set({}); 
+        return false; 
+    }
+
+    await catalogReady; // Wait for catalog to be processed before trying to access it
 
     console.log(`Attempting to load dataset ID: ${datasetId}`);
      stopCurrentGameAction();

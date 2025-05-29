@@ -42,32 +42,55 @@ self.addEventListener('install', event => {
         console.log('Service Worker: Caching Catalog');
         return cache.addAll(CATALOG_FILES);
       }),
-      // Pre-cache all datasets from catalog.json
-      fetch('/catalog.json')
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Failed to fetch catalog.json for pre-caching datasets');
-          }
-          return response.json();
-        })
-        .then(catalogEntries => {
-          const datasetFilesToCache = catalogEntries.map(entry => entry.filePath);
-          if (datasetFilesToCache.length > 0) {
-            console.log('Service Worker: Caching all datasets from catalog:', datasetFilesToCache);
-            return caches.open(DATASETS_CACHE).then(cache => {
-              return cache.addAll(datasetFilesToCache)
-                .then(() => console.log(`Service Worker: Successfully pre-cached ${datasetFilesToCache.length} datasets.`));
+      // Pre-cache all datasets from catalog.json, sourcing catalog.json from its cache
+      caches.open(CATALOG_CACHE) // Open the cache for catalog.json
+        .then(catalogCache => {
+          return catalogCache.match('/catalog.json')
+            .then(response => {
+              if (!response) {
+                console.error('Service Worker: Could not find /catalog.json in CATALOG_CACHE for pre-caching datasets. Skipping dataset pre-caching.');
+                return Promise.resolve(); // Gracefully skip if catalog not cached
+              }
+              return response.json();
+            })
+            .then(catalogEntries => {
+              if (!catalogEntries) { // Will be undefined if response.json() wasn't called due to catalog not found
+                // Error already logged, just ensure we resolve.
+                return Promise.resolve();
+              }
+
+              // Ensure catalogEntries is an array before trying to map over it
+              if (!Array.isArray(catalogEntries)) {
+                  console.error('Service Worker: Catalog data from cache is not an array. Skipping dataset pre-caching.', catalogEntries);
+                  return Promise.resolve();
+              }
+
+              const datasetFilesToCache = catalogEntries
+                .map(entry => entry.filePath)
+                .filter(filePath => typeof filePath === 'string'); // Ensure filePath is a string
+
+              if (datasetFilesToCache.length > 0) {
+                console.log('Service Worker: Caching all datasets from catalog (via cached catalog.json):', datasetFilesToCache);
+                return caches.open(DATASETS_CACHE) // Open the cache for datasets
+                  .then(datasetsCache => {
+                    return datasetsCache.addAll(datasetFilesToCache)
+                      .then(() => console.log(`Service Worker: Successfully pre-cached ${datasetFilesToCache.length} datasets.`))
+                      .catch(error => {
+                        console.error(`Service Worker: Error adding datasets to ${DATASETS_CACHE}:`, error, datasetFilesToCache);
+                        // If addAll fails, we still want to resolve to not break SW install.
+                        // Individual file caching errors within addAll are handled by addAll itself.
+                        return Promise.resolve(); 
+                      });
+                  });
+              } else {
+                console.log('Service Worker: No valid dataset filePaths found in cached catalog to pre-cache.');
+                return Promise.resolve();
+              }
             });
-          } else {
-            console.log('Service Worker: No datasets found in catalog to pre-cache.');
-            return Promise.resolve(); // Nothing to cache
-          }
         })
         .catch(error => {
-          console.error('Service Worker: Error pre-caching datasets from catalog:', error);
-          // Optionally re-throw or handle to decide if SW install should fail
-          // For now, we let it proceed without failing the entire SW installation for this.
-          return Promise.resolve(); // Resolve to not block other caching
+          console.error('Service Worker: Error pre-caching datasets using cached catalog:', error);
+          return Promise.resolve(); // Resolve to not block other caching operations
         })
     ]).then(() => {
       console.log('Service Worker: All initial assets and datasets pre-caching routines complete.');
