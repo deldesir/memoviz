@@ -1,7 +1,7 @@
-const APP_SHELL_CACHE = 'app-shell-cache-v1';
-const STATIC_ASSETS_CACHE = 'static-assets-cache-v1';
-const CATALOG_CACHE = 'catalog-cache-v1';
-const DATASETS_CACHE = 'datasets-cache-v1'; // Cache for datasets
+const APP_SHELL_CACHE = 'app-shell-cache-v2';
+const STATIC_ASSETS_CACHE = 'static-assets-cache-v2';
+const CATALOG_CACHE = 'catalog-cache-v2';
+const DATASETS_CACHE = 'datasets-cache-v2'; // Cache for datasets
 
 const ALL_CACHES = [
   APP_SHELL_CACHE,
@@ -13,6 +13,8 @@ const ALL_CACHES = [
 // Assets to cache on installation
 const APP_SHELL_FILES = [
   '/', // Main HTML (SvelteKit will ensure JS/CSS bundles are referenced)
+  '/app.css',
+  '/app.html'
 ];
 
 const STATIC_ASSETS_FILES = [
@@ -39,12 +41,62 @@ self.addEventListener('install', event => {
       caches.open(CATALOG_CACHE).then(cache => {
         console.log('Service Worker: Caching Catalog');
         return cache.addAll(CATALOG_FILES);
-      })
+      }),
+      // Pre-cache all datasets from catalog.json, sourcing catalog.json from its cache
+      caches.open(CATALOG_CACHE) // Open the cache for catalog.json
+        .then(catalogCache => {
+          return catalogCache.match('/catalog.json')
+            .then(response => {
+              if (!response) {
+                console.error('Service Worker: Could not find /catalog.json in CATALOG_CACHE for pre-caching datasets. Skipping dataset pre-caching.');
+                return Promise.resolve(); // Gracefully skip if catalog not cached
+              }
+              return response.json();
+            })
+            .then(catalogEntries => {
+              if (!catalogEntries) { // Will be undefined if response.json() wasn't called due to catalog not found
+                // Error already logged, just ensure we resolve.
+                return Promise.resolve();
+              }
+
+              // Ensure catalogEntries is an array before trying to map over it
+              if (!Array.isArray(catalogEntries)) {
+                  console.error('Service Worker: Catalog data from cache is not an array. Skipping dataset pre-caching.', catalogEntries);
+                  return Promise.resolve();
+              }
+
+              const datasetFilesToCache = catalogEntries
+                .map(entry => entry.filePath)
+                .filter(filePath => typeof filePath === 'string'); // Ensure filePath is a string
+
+              if (datasetFilesToCache.length > 0) {
+                console.log('Service Worker: Caching all datasets from catalog (via cached catalog.json):', datasetFilesToCache);
+                return caches.open(DATASETS_CACHE) // Open the cache for datasets
+                  .then(datasetsCache => {
+                    return datasetsCache.addAll(datasetFilesToCache)
+                      .then(() => console.log(`Service Worker: Successfully pre-cached ${datasetFilesToCache.length} datasets.`))
+                      .catch(error => {
+                        console.error(`Service Worker: Error adding datasets to ${DATASETS_CACHE}:`, error, datasetFilesToCache);
+                        // If addAll fails, we still want to resolve to not break SW install.
+                        // Individual file caching errors within addAll are handled by addAll itself.
+                        return Promise.resolve(); 
+                      });
+                  });
+              } else {
+                console.log('Service Worker: No valid dataset filePaths found in cached catalog to pre-cache.');
+                return Promise.resolve();
+              }
+            });
+        })
+        .catch(error => {
+          console.error('Service Worker: Error pre-caching datasets using cached catalog:', error);
+          return Promise.resolve(); // Resolve to not block other caching operations
+        })
     ]).then(() => {
-      console.log('Service Worker: All initial assets cached.');
+      console.log('Service Worker: All initial assets and datasets pre-caching routines complete.');
       return self.skipWaiting(); // Activate the new service worker immediately
     }).catch(error => {
-        console.error('Service Worker: Failed to cache initial assets:', error);
+        console.error('Service Worker: Failed to cache initial assets or pre-cache datasets:', error);
     })
   );
 });
@@ -101,20 +153,20 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       if (cachedResponse) {
-        // console.log('Service Worker: Serving from cache:', event.request.url);
+        // console.log('Service Worker: Serving from cache v2:', event.request.url);
         return cachedResponse;
       }
-      // console.log('Service Worker: Fetching from network:', event.request.url);
+      // console.log('Service Worker: Fetching from network v2:', event.request.url);
       return fetch(event.request).then(networkResponse => {
         // If it's a SvelteKit generated asset (typically under /_app/) or other important root paths, cache it dynamically.
-        if ((requestUrl.pathname.startsWith('/_app/') || requestUrl.pathname === '/') && 
+        if ((requestUrl.pathname.startsWith('/_app/') || requestUrl.pathname === '/') &&
             networkResponse && networkResponse.status === 200 && event.request.method === 'GET') {
-          // console.log('Service Worker: Dynamically caching asset:', event.request.url);
+          // console.log('Service Worker: Dynamically caching asset v2:', event.request.url);
           // Decide which cache: APP_SHELL_CACHE for core stuff, STATIC_ASSETS_CACHE for others if desired.
           // For simplicity, let's use APP_SHELL_CACHE for SvelteKit's own assets.
-          const cacheName = requestUrl.pathname.startsWith('/_app/') ? APP_SHELL_CACHE : STATIC_ASSETS_CACHE;
+          const cacheName = requestUrl.pathname.startsWith('/_app/') ? APP_SHELL_CACHE : STATIC_ASSETS_CACHE; // These are v2 names now
           return caches.open(cacheName).then(cache => {
-            // console.log(`Service Worker: Adding to ${cacheName}: ${event.request.url}`);
+            // console.log(`Service Worker: Adding to ${cacheName} (v2): ${event.request.url}`);
             cache.put(event.request, networkResponse.clone());
             return networkResponse;
           });
