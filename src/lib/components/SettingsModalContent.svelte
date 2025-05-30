@@ -180,7 +180,7 @@
 {#if $gameState.mode === 'guess-cell'}
    <div id="guess-cell-controls" class="settings-section game-controls" transition:slide={{duration: 200}}>
       <h4>Game: Guess Cell</h4>
-      <button type="button" id="guessGameBtn" class="start-stop-btn" class:active={$gameState.isActive} on:click={toggleGameStateAction} disabled={!dataLoaded}>
+      <button type="button" id="guessGameBtn" class="start-stop-btn" class:active={$gameState.isActive} on:click={handleToggleGame} disabled={!dataLoaded}>
          {$gameState.isActive ? 'Stop Game' : 'Start Game'}
       </button>
       <div id="scoreDisplay">Score: {$gameState.score}</div>
@@ -192,7 +192,7 @@
       <h4>Game: Timed Recall</h4>
       <label for="recallSlider">Reveal Delay: <span id="sliderValueDisplay">{$gameState.recallDuration}</span>s</label>
       <input type="range" id="recallSlider" min="1" max="10" step="1" bind:value={$gameState.recallDuration} disabled={!dataLoaded || $gameState.isActive}>
-       <button type="button" id="recallGameBtn" class="start-stop-btn" class:active={$gameState.isActive} on:click={toggleGameStateAction} disabled={!dataLoaded}>
+       <button type="button" id="recallGameBtn" class="start-stop-btn" class:active={$gameState.isActive} on:click={handleToggleGame} disabled={!dataLoaded}>
          {$gameState.isActive ? 'Stop Game' : 'Start Game'}
        </button>
        </div>
